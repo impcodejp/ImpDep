@@ -1,0 +1,85 @@
+/* src/pages/ProjectList.css */
+
+.project-list-container {
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.list-title {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+/* テーブル全体のレイアウト固定 */
+.project-table {
+  width: 100%;
+  border-collapse: collapse; /* 💡 境界線を1本にする */
+  table-layout: fixed;      /* 💡 列幅を固定してガタつきを防ぐ */
+  border: 1px solid #ccc;
+  font-family: sans-serif;
+}
+
+/* ヘッダー：背景を少し濃くして境界を強調 */
+.project-table th {
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;    /* 💡 縦横に罫線を入れる */
+  padding: 10px 8px;
+  font-size: 0.9rem;
+  color: #444;
+  text-align: center;
+}
+
+/* 各セルの罫線とパディング */
+.project-table td {
+  border: 1px solid #ddd;    /* 💡 薄めのグレーで格子状にする */
+  padding: 8px;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;   /* 💡 はみ出た文字を「...」にする */
+  white-space: nowrap;
+}
+
+/* --- 💡 列幅の調整（お好みで％を調整してください） --- */
+.col-date   { width: 100px; }
+.col-name   { width: 250px; }
+.col-client { width: 180px; }
+.col-amount { width: 120px; }
+.col-ratio  { width: 70px;  }
+.col-load   { width: 60px;  }
+.col-status { width: 90px;  }
+
+/* 1行おきに背景色を変える（ゼブラ柄） */
+.project-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* ホバー時は少し強調 */
+.project-table tbody tr:hover {
+  background-color: #f0f7ff !important;
+}
+
+/* 数値用：桁が揃うように等幅フォントを指定 */
+.text-right {
+  text-align: right;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  padding-right: 12px !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* ステータスバッジの調整 */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
+}
+
+.status-badge.割振済 { background-color: #e3f2fd; color: #1976d2; border-color: #bbdefb; }
+.status-badge.進行中 { background-color: #fff3e0; color: #f57c00; border-color: #ffe0b2; }
+.status-badge.完了   { background-color: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }

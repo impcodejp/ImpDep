@@ -2,28 +2,55 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
+import Dashboard from "./components/Dashboard"; // 💡 作成したコンポーネントをインポート
+
+// 各ページコンポーネントのインポート
 import ClientRegistration from "./pages/ClientRegistration";
+import ClientEdit from "./pages/ClientEdit";
+import ClientList from "./pages/ClientList";
+import ProjectRegistration from "./pages/ProjectRegistration";
+import ProjectList from "./pages/ProjectList"; 
+
 import "./App.css";
 
 function MainScreen() {
-  // どのタブを開いているかを管理します（初期値はダッシュボード）
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'menu'>('dashboard');
+  // タブの状態管理
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'menu' | 'clientList' | 'projectList'>('dashboard');
 
-  // サブウィンドウを開く関数（先ほど作ったRustのコマンドを呼びます）
+  // --- ウィンドウ操作用の関数群 ---
+
   const openClientRegistration = async () => {
     try {
       await invoke("open_registration_window");
     } catch (error) {
-      console.error("ウィンドウの展開に失敗しました:", error);
+      console.error("ウィンドウ展開エラー:", error);
+    }
+  };
+
+  const openClientEdit = async () => {
+    try {
+      await invoke("open_edit_window");
+    } catch (error) {
+      console.error("ウィンドウ展開エラー:", error);
+    }
+  };
+
+  const openProjectRegistration = async () => {
+    try {
+      await invoke("open_project_registration_window");
+    } catch (error) {
+      console.error("ウィンドウ展開エラー:", error);
     }
   };
 
   return (
     <main className="main-container">
-      <h1>ImpDep System</h1>
+      <header className="main-header">
+        <h1>ImpDep System 2026</h1>
+      </header>
 
       {/* --- タブの切り替えボタン --- */}
-      <div className="tab-header">
+      <nav className="tab-header">
         <button 
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
@@ -36,32 +63,29 @@ function MainScreen() {
         >
           📁 メニュー
         </button>
-      </div>
+        <button 
+          className={`tab-button ${activeTab === 'projectList' ? 'active' : ''}`}
+          onClick={() => setActiveTab('projectList')}
+        >
+          📈 案件進捗一覧
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'clientList' ? 'active' : ''}`}
+          onClick={() => setActiveTab('clientList')}
+        >
+          📋 取引先一覧
+        </button>
+      </nav>
 
       {/* --- タブの中身 --- */}
       <div className="tab-content">
         
-        {/* ダッシュボードが選ばれている時の表示 */}
+        {/* ① ダッシュボード 💡 本物のコンポーネントに差し替え */}
         {activeTab === 'dashboard' && (
-          <div className="dummy-dashboard">
-            <h2>今月の計上予定サマリー</h2>
-            <div className="dummy-chart">
-              <p>ここに棒グラフや円グラフが表示される予定です</p>
-            </div>
-            <div className="dummy-stats">
-              <div className="stat-box">
-                <span className="stat-label">今月の予定案件</span>
-                <span className="stat-value">12 件</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">未処理（確認待ち）</span>
-                <span className="stat-value alert">3 件</span>
-              </div>
-            </div>
-          </div>
+          <Dashboard />
         )}
 
-        {/* メニューが選ばれている時の表示（ツリー形式） */}
+        {/* ② メニュー（ツリー形式） */}
         {activeTab === 'menu' && (
           <div className="tree-menu">
             <h2>システムメニュー</h2>
@@ -69,22 +93,42 @@ function MainScreen() {
               <li>
                 <span className="folder">📂 マスタ管理</span>
                 <ul>
-                  <li>
-                    <button className="tree-item-button" onClick={openClientRegistration}>
-                      📄 取引先マスタ登録
-                    </button>
-                  </li>
-                  <li><span className="tree-item disabled">📄 案件マスタ登録 (準備中)</span></li>
+                  <li><button className="tree-item-button" onClick={openClientRegistration}>📄 取引先マスタ登録</button></li>
+                  <li><button className="tree-item-button" onClick={openClientEdit}>📝 取引先マスタ更新</button></li>
                 </ul>
               </li>
+              
               <li>
-                <span className="folder">📂 帳票出力・レポート</span>
+                <span className="folder">📂 案件業務管理</span>
                 <ul>
-                  <li><span className="tree-item disabled">📊 来月の計上予定一覧表 (準備中)</span></li>
-                  <li><span className="tree-item disabled">📑 案件詳細レポート (準備中)</span></li>
+                  <li>
+                    <button className="tree-item-button" onClick={openProjectRegistration}>
+                      💎 案件新規登録
+                    </button>
+                  </li>
+                  <li>
+                    <button className="tree-item-button" onClick={() => setActiveTab('projectList')}>
+                      📑 案件進捗一覧
+                    </button>
+                  </li>
+                  <li><span className="tree-item disabled">💰 売上・粗利集計 (準備中)</span></li>
                 </ul>
               </li>
             </ul>
+          </div>
+        )}
+
+        {/* ③ 案件進捗一覧タブ */}
+        {activeTab === 'projectList' && (
+          <div className="list-view">
+            <ProjectList />
+          </div>
+        )}
+
+        {/* ④ 取引先一覧タブ */}
+        {activeTab === 'clientList' && (
+          <div className="list-view">
+            <ClientList />
           </div>
         )}
 
@@ -99,6 +143,8 @@ function App() {
       <Routes>
         <Route path="/" element={<MainScreen />} />
         <Route path="/client-registration" element={<ClientRegistration />} />
+        <Route path="/client-edit" element={<ClientEdit />} />
+        <Route path="/project-registration" element={<ProjectRegistration />} />
       </Routes>
     </BrowserRouter>
   );

@@ -17,8 +17,21 @@ pub fn run() {
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+                // ダッシュボード関連コマンド
+                commands::dashboard_commands::get_dashboard_summary,
+                // ウィンドウ表示コマンド
+                commands::window_commands::open_registration_window,
+                commands::window_commands::open_edit_window,
+                commands::window_commands::open_project_registration_window,
+                // 取引先関連操作コマンド
                 commands::client_commands::add_client,
-                commands::window_commands::open_registration_window
+                commands::client_commands::get_client_by_code,
+                commands::client_commands::update_client,
+                commands::client_commands::search_clients,
+                commands::client_commands::get_all_clients,
+                // プロジェクト関連操作コマンド
+                commands::project_commands::create_project,
+                commands::project_commands::get_projects
             ])
         .setup(|app| {
             tauri::async_runtime::block_on(async {
@@ -36,7 +49,7 @@ pub fn run() {
                     .run(&pool)
                     .await
                     .expect("Failed to run database migrations");
-                println!("Database migrations completed successfully");
+                println!("Database migrations completed successfully!!");
                 // --- ここまで追加 --
 
                 app.manage(AppState { db: pool });
