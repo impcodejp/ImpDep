@@ -1,8 +1,8 @@
-// src/App.tsx
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
-import Dashboard from "./components/Dashboard"; // 💡 作成したコンポーネントをインポート
+import Dashboard from "./components/Dashboard"; 
+import Menu from "./components/Menu";
 
 // 各ページコンポーネントのインポート
 import ClientRegistration from "./pages/ClientRegistration";
@@ -10,6 +10,7 @@ import ClientEdit from "./pages/ClientEdit";
 import ClientList from "./pages/ClientList";
 import ProjectRegistration from "./pages/ProjectRegistration";
 import ProjectList from "./pages/ProjectList"; 
+import ProjectDetail from "./pages/ProjectDetail"; // 💡 追加：詳細画面をインポート
 
 import "./App.css";
 
@@ -46,7 +47,8 @@ function MainScreen() {
   return (
     <main className="main-container">
       <header className="main-header">
-        <h1>ImpDep System 2026</h1>
+        <h1>ImpDep</h1>
+        <h2>- 個人計上管理システム -</h2>
       </header>
 
       {/* --- タブの切り替えボタン --- */}
@@ -80,42 +82,19 @@ function MainScreen() {
       {/* --- タブの中身 --- */}
       <div className="tab-content">
         
-        {/* ① ダッシュボード 💡 本物のコンポーネントに差し替え */}
+        {/* ① ダッシュボード */}
         {activeTab === 'dashboard' && (
           <Dashboard />
         )}
 
         {/* ② メニュー（ツリー形式） */}
         {activeTab === 'menu' && (
-          <div className="tree-menu">
-            <h2>システムメニュー</h2>
-            <ul className="tree-list">
-              <li>
-                <span className="folder">📂 マスタ管理</span>
-                <ul>
-                  <li><button className="tree-item-button" onClick={openClientRegistration}>📄 取引先マスタ登録</button></li>
-                  <li><button className="tree-item-button" onClick={openClientEdit}>📝 取引先マスタ更新</button></li>
-                </ul>
-              </li>
-              
-              <li>
-                <span className="folder">📂 案件業務管理</span>
-                <ul>
-                  <li>
-                    <button className="tree-item-button" onClick={openProjectRegistration}>
-                      💎 案件新規登録
-                    </button>
-                  </li>
-                  <li>
-                    <button className="tree-item-button" onClick={() => setActiveTab('projectList')}>
-                      📑 案件進捗一覧
-                    </button>
-                  </li>
-                  <li><span className="tree-item disabled">💰 売上・粗利集計 (準備中)</span></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
+          <Menu 
+            openClientRegistration={openClientRegistration}
+            openClientEdit={openClientEdit}
+            openProjectRegistration={openProjectRegistration}
+            setActiveTab={setActiveTab}
+          />
         )}
 
         {/* ③ 案件進捗一覧タブ */}
@@ -145,6 +124,8 @@ function App() {
         <Route path="/client-registration" element={<ClientRegistration />} />
         <Route path="/client-edit" element={<ClientEdit />} />
         <Route path="/project-registration" element={<ProjectRegistration />} />
+        {/* 💡 追記：案件詳細画面（サブウィンドウ用） */}
+        <Route path="/project-detail/:id" element={<ProjectDetail />} />
       </Routes>
     </BrowserRouter>
   );

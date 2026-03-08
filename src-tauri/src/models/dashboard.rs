@@ -11,4 +11,5 @@ pub struct DashboardSummary {
     pub monthly_profit_plan: BigDecimal,
     pub monthly_profit_actual: BigDecimal,
     pub upcoming_projects: Vec<ProjectWithClient>,
+    pub load_value_sum: BigDecimal,
 }

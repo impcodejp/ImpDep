@@ -1,0 +1,119 @@
+/* src/pages/ProjectDetail.css */
+
+.detail-full-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.detail-header-full {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 4px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.project-title-display {
+  margin: 0;
+  text-align: left;
+  font-size: 2rem;
+  text-shadow: none;
+}
+
+.client-info-banner {
+  margin-top: 10px;
+  font-family: var(--font-family-retro);
+  background: var(--bg-color);
+  padding: 5px 15px;
+  border: 2px solid var(--border-color);
+  display: inline-block;
+}
+
+.client-info-banner .label { color: var(--accent-color); font-weight: bold; margin-right: 10px; }
+
+/* 2カラムレイアウト */
+.detail-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 30px;
+  flex: 1;
+  min-height: 0;
+}
+
+.main-edit-pane {
+  background: #fff;
+  padding: 20px;
+  border-right: 2px dashed var(--border-color);
+  overflow-y: auto;
+}
+
+.side-info-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+/* フォーム調整 */
+.action-footer {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 3px double var(--border-color);
+}
+
+.save-btn { flex: 2; margin-top: 0; }
+.delete-btn { flex: 1; }
+
+/* サイドバー要素 */
+.date-summary-card {
+  background: var(--bg-color);
+  border: 3px solid var(--border-color);
+  padding: 15px;
+  box-shadow: 4px 4px 0 var(--border-color);
+}
+
+.side-title {
+  font-family: var(--font-family-retro);
+  font-size: 1rem;
+  margin-top: 0;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 10px;
+}
+
+.date-item label { font-size: 0.75rem; color: #666; display: block; }
+.date-val { font-family: var(--font-family-retro); font-size: 1.2rem; margin: 2px 0 10px 0; }
+.date-val.highlight { color: var(--accent-color); font-weight: bold; }
+
+/* 履歴カード形式（コンパクト化） */
+.history-log-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.history-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.history-card {
+  background: white;
+  border: 2px solid var(--border-color);
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.history-meta { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.h-date { font-family: var(--font-family-retro); font-weight: bold; }
+.h-label { background: var(--border-color); color: white; padding: 0 4px; font-size: 0.7rem; }
+
+.h-flow { display: flex; align-items: center; gap: 8px; font-family: var(--font-family-retro); }
+.h-flow .arrow { color: var(--accent-color); font-weight: bold; }
+.h-reason { margin-top: 5px; color: #666; font-style: italic; border-top: 1px dotted #ccc; padding-top: 3px; }

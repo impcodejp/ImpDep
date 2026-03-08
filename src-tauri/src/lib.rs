@@ -23,6 +23,7 @@ pub fn run() {
                 commands::window_commands::open_registration_window,
                 commands::window_commands::open_edit_window,
                 commands::window_commands::open_project_registration_window,
+                commands::window_commands::open_project_detail_window,
                 // 取引先関連操作コマンド
                 commands::client_commands::add_client,
                 commands::client_commands::get_client_by_code,
@@ -31,7 +32,10 @@ pub fn run() {
                 commands::client_commands::get_all_clients,
                 // プロジェクト関連操作コマンド
                 commands::project_commands::create_project,
-                commands::project_commands::get_projects
+                commands::project_commands::get_projects,
+                commands::project_commands::get_project_detail,
+                commands::project_commands::get_project_history_list,
+                commands::project_commands::update_project_details,
             ])
         .setup(|app| {
             tauri::async_runtime::block_on(async {

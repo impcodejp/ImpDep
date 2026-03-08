@@ -8,7 +8,7 @@
   --bg-color: #FDF6E3;
   --form-bg: #FFFFFF;
   --text-color: #2D3436;
-  --accent-color: #E9967A;
+  --accent-color: #E9967A;;
   --border-color: #2D3436;
   --shadow-color: rgba(45, 52, 54, 0.5);
   --checkbox-accent: #2ECC71;
@@ -43,6 +43,18 @@ h1 {
   text-shadow: 2px 2px 0 var(--border-color);
 }
 
+.main-header h2 {
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  box-shadow: none;
+  font-size: 1.1rem;
+  margin: -1rem 0 2rem 0;
+  transform: none;
+  display: block;
+  text-align: center;
+  letter-spacing: 0.2em;
+}
 /* =========================================
    メイン画面（ダッシュボード）の設定
    ========================================= */

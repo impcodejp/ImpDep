@@ -1,10 +1,8 @@
-// src/pages/ProjectList.tsx
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import "./ProjectList.css"; // 💡 専用のCSSを読み込みます
+import "./ProjectList.css";
 
-// Rust側の構造体と合わせるためのインターフェース
-interface Project {
+interface ProjectWithClient {
   id: number;
   projectName: string;
   clientName: string;
@@ -17,88 +15,96 @@ interface Project {
 }
 
 export default function ProjectList() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<ProjectWithClient[]>([]);
+  const [searchTerm, setSearchTerm] = useState(""); // 検索用
 
-  // データをロードする関数
-  const loadProjects = async () => {
-    try {
-      setLoading(true);
-      // Rustのコマンド "get_projects" を呼び出す
-      const data = await invoke<Project[]>("get_projects");
-      setProjects(data);
-    } catch (error) {
-      console.error("案件データの取得に失敗しました:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // コンポーネントが表示された時に一度だけ実行
   useEffect(() => {
     loadProjects();
   }, []);
 
+  const loadProjects = async () => {
+    try {
+      const data = await invoke<ProjectWithClient[]>("get_projects");
+      setProjects(data);
+    } catch (error) {
+      console.error("案件一覧の取得に失敗:", error);
+    }
+  };
+
+  // 💡 取引先名でフィルタリングするロジック
+  const filteredProjects = projects.filter((p) =>
+    p.clientName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 💡 ダブルクリック時の処理（Rust側のコマンドを呼ぶ）
+  const handleDoubleClick = async (id: number) => {
+    try {
+      await invoke("open_project_detail_window", { id });
+    } catch (error) {
+      console.error("詳細ウィンドウの展開に失敗:", error);
+    }
+  };
+
   return (
     <div className="project-list-container">
       <div className="list-header">
-        <h2 className="list-title">案件進捗一覧</h2>
-        <button className="refresh-button" onClick={loadProjects}>
-          🔄 更新
-        </button>
+        <h2>📈 案件進捗一覧</h2>
+        <div className="search-bar">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="取引先名で検索..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
       </div>
 
-      {loading ? (
-        <div className="loading-message">読み込み中...</div>
-      ) : (
-        <div className="table-wrapper">
-          <table className="project-table">
-            <thead>
-              <tr>
-                <th className="col-date">予定日</th>
-                <th className="col-name">案件名</th>
-                <th className="col-client">取引先</th>
-                <th className="col-amount">売上金額</th>
-                <th className="col-amount">粗利金額</th>
-                <th className="col-ratio">負担%</th>
-                <th className="col-load">負荷</th>
-                <th className="col-status">状態</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="text-center">登録されている案件はありません</td>
+      <div className="table-wrapper">
+        <table className="project-table">
+          <thead>
+            <tr>
+              <th>計上予定日</th>
+              <th>案件名</th>
+              <th>取引先</th>
+              <th className="text-right">売上金額</th>
+              <th className="text-right">粗利金額</th>
+              <th className="text-center">ステータス</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProjects.length > 0 ? (
+              filteredProjects.map((p) => (
+                <tr
+                  key={p.id}
+                  onDoubleClick={() => handleDoubleClick(p.id)} // 💡 ダブルクリックイベント
+                  className="clickable-row"
+                  title="ダブルクリックで詳細を開く"
+                >
+                  <td>{p.currentScheduledDate}</td>
+                  <td className="bold">{p.projectName}</td>
+                  <td>{p.clientName}</td>
+                  <td className="text-right">¥{p.salesAmount.toLocaleString()}</td>
+                  <td className="text-right">¥{p.grossProfitAmount.toLocaleString()}</td>
+                  <td className="text-center">
+                    <span className={`status-badge ${p.status}`}>
+                      {p.status}
+                    </span>
+                  </td>
                 </tr>
-              ) : (
-                projects.map((p) => (
-                  <tr key={p.id}>
-                    <td className="text-center">{p.currentScheduledDate}</td>
-                    <td className="project-name-cell" title={p.projectName}>
-                      {p.projectName}
-                    </td>
-                    <td title={p.clientName}>{p.clientName}</td>
-                    <td className="text-right">
-                      ¥{Math.floor(p.salesAmount).toLocaleString()}
-                    </td>
-                    <td className="text-right">
-                      ¥{Math.floor(p.grossProfitAmount).toLocaleString()}
-                    </td>
-                    <td className="text-center">{(p.burdenRatio * 100).toFixed(1)}%</td>
-                    <td className="text-center">{p.loadValue}</td>
-                    <td className="text-center">
-                      <span className={`status-badge ${p.status}`}>
-                        {p.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-            {/* 💡 合計行などを将来的に追加する場合はここへ <tfoot> を入れると綺麗です */}
-          </table>
-        </div>
-      )}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="no-data">
+                  該当する案件が見つかりません
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="list-footer">※ 行をダブルクリックすると詳細・編集画面が開きます</p>
     </div>
   );
 }

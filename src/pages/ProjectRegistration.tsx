@@ -16,8 +16,9 @@ export default function ProjectRegistration() {
   const [scheduledDate, setScheduledDate] = useState("");
   
   // 💡 追加項目
-  const [burdenRatio, setBurdenRatio] = useState("100"); // デフォルト100%
+  const [burdenRatio, setBurdenRatio] = useState("100");
   const [loadValue, setLoadValue] = useState("0");
+  const [assignedDate, setAssignedDate] = useState(""); // 💡 割振日のステートを追加
 
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<Client[]>([]);
@@ -59,15 +60,17 @@ export default function ProjectRegistration() {
         sales: parseFloat(sales) || 0, 
         grossProfit: parseFloat(grossProfit) || 0, 
         scheduledDate,
-        // 💡 Rust側に送るパラメータを追加
+        // 💡 Rust側に送るパラメータ
         burdenRatio: parseFloat(burdenRatio) || 0,
-        loadValue: parseFloat(loadValue) || 0
+        loadValue: parseFloat(loadValue) || 0,
+        assignedDate: assignedDate || null // 💡 空文字の場合は null として送る
       });
       alert("案件を登録しました！");
-      // リセット（負担割合は100に戻す）
+      
+      // リセット
       setProjectName(""); setSelectedClient(null); setClientSearchCode("");
       setSales(""); setGrossProfit(""); setScheduledDate("");
-      setBurdenRatio("100"); setLoadValue("0");
+      setBurdenRatio("100"); setLoadValue("0"); setAssignedDate("");
     } catch (err) {
       alert("登録エラー: " + err);
     }
@@ -75,8 +78,8 @@ export default function ProjectRegistration() {
 
   return (
     <main>
-      <div className="registration-form" style={{ maxWidth: "650px" }}>
-        <h1>案件新規登録</h1>
+      <div className="registration-form" style={{ maxWidth: "650px", padding: "1.5rem" }}>
+        <h1 style={{ fontSize: "1.8rem", marginBottom: "1rem" }}>案件新規登録</h1>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -88,17 +91,17 @@ export default function ProjectRegistration() {
           <div className="form-group">
             <label className="form-label">取引先選択:</label>
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <input type="text" className="form-input" style={{ width: "120px" }}
+              <input type="text" className="form-input" style={{ width: "100px" }}
                 value={clientSearchCode} onChange={(e) => setClientSearchCode(e.target.value)}
                 onBlur={handleClientCodeBlur} placeholder="コード" />
-              <button type="button" className="retro-btn secondary" onClick={() => setIsSearching(!isSearching)}>
+              <button type="button" className="retro-btn secondary" style={{ padding: "0.5rem" }} onClick={() => setIsSearching(!isSearching)}>
                 🔍 検索
               </button>
-              <div className="client-display-box" style={{ flex: 1, padding: "8px", borderBottom: "2px solid #ccc", background: "#f9f9f9" }}>
-                {selectedClient ? selectedClient.clientName : <span style={{color: "#999"}}>取引先が選択されていません</span>}
+              <div className="client-display-box" style={{ flex: 1, padding: "8px", borderBottom: "2px solid #ccc", background: "#f9f9f9", fontSize: "0.9rem" }}>
+                {selectedClient ? selectedClient.clientName : <span style={{color: "#999"}}>未選択</span>}
               </div>
             </div>
-            {/* 検索パネル部分は省略せずそのまま保持... */}
+            {/* 検索パネル部分は必要に応じて表示 */}
           </div>
 
           <div style={{ display: "flex", gap: "20px" }}>
@@ -114,7 +117,6 @@ export default function ProjectRegistration() {
             </div>
           </div>
 
-          {/* 💡 追加：負担割合と負荷値 */}
           <div style={{ display: "flex", gap: "20px" }}>
             <div className="form-group" style={{ flex: 1 }}>
               <label className="form-label">計上負担割合 (%):</label>
@@ -128,13 +130,21 @@ export default function ProjectRegistration() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">計上予定日:</label>
-            <input type="date" className="form-input" style={{ width: "200px" }}
-              value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} required />
+          {/* 💡 割振日と計上予定日を横並びに配置 */}
+          <div style={{ display: "flex", gap: "20px" }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">割振日:</label>
+              <input type="date" className="form-input" 
+                value={assignedDate} onChange={(e) => setAssignedDate(e.target.value)} />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">計上予定日:</label>
+              <input type="date" className="form-input" 
+                value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} required />
+            </div>
           </div>
 
-          <button type="submit" className="submit-button" style={{ marginTop: "20px", width: "100%" }}>
+          <button type="submit" className="submit-button" style={{ marginTop: "10px", padding: "0.8rem" }}>
             この内容で案件を登録する
           </button>
         </form>

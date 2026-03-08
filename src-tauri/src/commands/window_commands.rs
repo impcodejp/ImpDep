@@ -73,3 +73,22 @@ pub async fn open_project_registration_window(handle: tauri::AppHandle) -> Resul
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn open_project_detail_window(handle: tauri::AppHandle, id: i32) -> Result<(), String> {
+    // 💡 URLにIDをのせて、詳細画面側でどの案件か特定できるようにします
+    let url = format!("/project-detail/{}", id);
+    
+    let _ = tauri::WebviewWindowBuilder::new(
+        &handle,
+        format!("detail-{}", id), // ウィンドウを識別するユニークなキー
+        tauri::WebviewUrl::App(url.into())
+    )
+    .title("案件詳細")
+    .inner_size(800.0, 600.0)
+    .resizable(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
