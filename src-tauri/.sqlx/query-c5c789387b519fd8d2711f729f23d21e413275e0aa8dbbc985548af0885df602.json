@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            COALESCE(SUM(p.load_value * p.burden_ratio), 0) as \"load_value_sum!\"\n        FROM projects p\n        WHERE p.assigned_date IS NOT NULL \n          AND p.assigned_date < TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '1 month'\n          AND p.current_scheduled_date >= TO_DATE($1, 'YYYY-MM-DD')\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "load_value_sum!",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c5c789387b519fd8d2711f729f23d21e413275e0aa8dbbc985548af0885df602"
+}

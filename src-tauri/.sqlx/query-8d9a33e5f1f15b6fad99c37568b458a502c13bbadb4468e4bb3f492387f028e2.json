@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            id as \"id!\", \n            project_id as \"project_id!\", \n            old_scheduled_date as \"old_date\", \n            new_scheduled_date as \"new_date!\", \n            change_reason as \"change_reason\", \n            created_at as \"changed_at!\"\n        FROM schedule_change_logs \n        WHERE project_id = $1 \n        ORDER BY created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "project_id!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "old_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 3,
+        "name": "new_date!",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "change_reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "changed_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "8d9a33e5f1f15b6fad99c37568b458a502c13bbadb4468e4bb3f492387f028e2"
+}

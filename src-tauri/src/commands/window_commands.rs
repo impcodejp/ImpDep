@@ -66,7 +66,7 @@ pub async fn open_project_registration_window(handle: tauri::AppHandle) -> Resul
         tauri::WebviewUrl::App("/project-registration".into()) // ReactのRouteパス
     )
     .title("案件新規登録")
-    .inner_size(800.0, 800.0) // 登録画面なので少し縦長に
+    .inner_size(800.0, 900.0) // 登録画面なので少し縦長に
     .resizable(true)
     .build()
     .map_err(|e| e.to_string())?;
@@ -86,9 +86,29 @@ pub async fn open_project_detail_window(handle: tauri::AppHandle, id: i32) -> Re
     )
     .title("案件詳細")
     .inner_size(800.0, 600.0)
+    .maximized(true)
     .resizable(true)
     .build()
     .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_history_log_registration_window(handle: tauri::AppHandle, id: i32) -> Result<(), String> {
+    let url = format!("/history-log-registration/{}", id);
+    
+    let _ = tauri::WebviewWindowBuilder::new(
+        &handle,
+        format!("history-log-{}", id), // ウィンドウを識別するユニークなキー
+        tauri::WebviewUrl::App(url.into())
+    )
+    .title("履歴の登録")
+    .inner_size(600.0, 700.0) // 💡 ここでサイズを指定
+    .resizable(false)         // レイアウトを崩さないために固定にするのがおすすめ
+    .always_on_top(true)      // 親画面に隠れないように
+    .build()
+    .map_err(|e| e.to_string())?;   
 
     Ok(())
 }

@@ -1,3 +1,4 @@
 pub mod client;
 pub mod project;
-pub mod dashboard; // ダッシュボード関連のモデルを追加
+pub mod dashboard;
+pub mod project_change_log;

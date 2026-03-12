@@ -11,6 +11,7 @@ import ClientList from "./pages/ClientList";
 import ProjectRegistration from "./pages/ProjectRegistration";
 import ProjectList from "./pages/ProjectList"; 
 import ProjectDetail from "./pages/ProjectDetail"; // 💡 追加：詳細画面をインポート
+import HistoryLogRegistration from "./pages/HistoryLogRegistration"; // 💡 追加：履歴登録画面をインポート
 
 import "./App.css";
 
@@ -126,6 +127,8 @@ function App() {
         <Route path="/project-registration" element={<ProjectRegistration />} />
         {/* 💡 追記：案件詳細画面（サブウィンドウ用） */}
         <Route path="/project-detail/:id" element={<ProjectDetail />} />
+        {/* 💡 追記：履歴登録画面（サブウィンドウ用） */}
+        <Route path="/history-log-registration/:id" element={<HistoryLogRegistration />} />
       </Routes>
     </BrowserRouter>
   );

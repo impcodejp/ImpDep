@@ -75,6 +75,7 @@ pub async fn update_project_details(
     sales_amount: f64,
     gross_profit_amount: f64,
     status: String,
+    root_type: Option<String>,
     burden_ratio: f64,
     load_value: f64,
     assigned_date: Option<String>,
@@ -101,6 +102,7 @@ pub async fn update_project_details(
         sales_bd,
         profit_bd,
         status,
+        root_type,
         ratio_bd,
         load_bd,
         assigned,
@@ -108,4 +110,25 @@ pub async fn update_project_details(
     )
     .await
     .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn delete_project(
+    state: State<'_, AppState>,
+    id: i32,
+) -> Result<(), String> {
+    println!("DEBUG: Deleting project ID: {}", id);
+
+    let pool = &state.db; // 先ほどのデバッグで判明した通り 'db' を指定
+
+    project_repository::delete_project(pool, id)
+        .await
+        .map_err(|e| {
+            let err_msg = format!("削除に失敗しました: {:?}", e);
+            println!("{}", err_msg);
+            err_msg
+        })?;
+
+    println!("SUCCESS: Project {} deleted.", id);
+    Ok(())
 }

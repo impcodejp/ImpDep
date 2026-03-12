@@ -52,6 +52,7 @@ pub struct ProjectWithClient2 {
     pub current_scheduled_date: NaiveDate,
     pub original_scheduled_date: NaiveDate,
     pub status: String,
+    pub root_type: Option<String>,
     pub burden_ratio: BigDecimal,
     pub load_value: i32,
     pub assigned_date: Option<NaiveDate>,

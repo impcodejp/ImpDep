@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { listen } from "@tauri-apps/api/event";
 import "./ProjectDetail.css";
 
 // 型定義
@@ -10,12 +12,13 @@ interface ProjectDetailData {
   clientName: string;
   salesAmount: number;
   grossProfitAmount: number;
-  initialScheduledDate: string;
   currentScheduledDate: string;
-  assignedDate: string | null;
+  originalScheduledDate: string | null;
   status: string;
+  rootType: string;
   burdenRatio: number;
   loadValue: number;
+  assignedDate: string | null;
   completedDate: string | null;
 }
 
@@ -28,18 +31,21 @@ interface ChangeHistory {
 }
 
 const STATUS_OPTIONS = ["割振済", "着手", "検収合意", "送付済", "完了"];
+const ROOT_TYPE_OPTIONS = [
+  { value: "N", label: "新規" },
+  { value: "A", label: "追加" },
+];
 
 export default function ProjectDetail() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id: paramsId } = useParams<{ id: string }>();
   const [project, setProject] = useState<ProjectDetailData | null>(null);
   const [histories, setHistories] = useState<ChangeHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // フォーム用State
   const [editData, setEditData] = useState<Partial<ProjectDetailData>>({});
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  const id = paramsId ? Number(paramsId) : 0;
 
   const loadData = async () => {
     if (!id) return;
@@ -49,8 +55,13 @@ export default function ProjectDetail() {
         invoke<ProjectDetailData>("get_project_detail", { id: Number(id) }),
         invoke<ChangeHistory[]>("get_project_history_list", { id: Number(id) })
       ]);
+      
       setProject(detail);
-      setEditData(detail);
+      // 💡 DBの小数(0.7)を画面用の%(70)に変換してセット
+      setEditData({
+        ...detail,
+        burdenRatio: detail.burdenRatio * 100
+      });
       setHistories(historyList);
     } catch (error) {
       console.error("データの読み込みに失敗しました:", error);
@@ -59,19 +70,50 @@ export default function ProjectDetail() {
     }
   };
 
+  useEffect(() => {
+    loadData();
+    const unlisten = listen("history-updated", () => {
+      loadData();
+    });
+    return () => {
+      unlisten.then(f => f());
+    };
+  }, [id]);
+
+  const handleBack = async () => {
+    try {
+      const appWindow = getCurrentWindow();
+      await appWindow.close();
+    } catch (error) {
+      console.error("Failed to close window:", error);
+    }
+  };
+
+  const openHistoryLogRegistration = async (projectId: number) => {
+    try {
+      await invoke("open_history_log_registration_window", { id: Number(projectId) });
+    } catch (error) {
+      console.error("履歴登録ウィンドウのオープンに失敗しました:", error);
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    // 数値入力の場合は数値として保持
+    const val = e.target.type === "number" ? parseFloat(value) : value;
+    setEditData(prev => ({ ...prev, [name]: val }));
+  };
+
   const handleSave = async () => {
     if (!project) return;
-
     try {
       const oldStatus = project.status;
       const newStatus = editData.status;
       let finalCompletedDate: string | null | undefined = project.completedDate;
 
-      // --- ステータス変更に伴う日付制御ロジック ---
       if (oldStatus !== "完了" && newStatus === "完了") {
         const today = new Date().toISOString().split('T')[0];
         const inputDate = window.prompt("【案件完了】完了日を入力してください (YYYY-MM-DD)", today);
-        
         if (inputDate === null) return;
         finalCompletedDate = inputDate;
       } 
@@ -81,14 +123,15 @@ export default function ProjectDetail() {
         finalCompletedDate = null;
       }
 
-      // 💡 数値項目を Number() でキャストして送信
       await invoke("update_project_details", {
         id: Number(id),
         projectName: editData.projectName,
         salesAmount: Number(editData.salesAmount),
         grossProfitAmount: Number(editData.grossProfitAmount),
         status: editData.status,
-        burdenRatio: Number(editData.burdenRatio),
+        rootType: editData.rootType,
+        // 💡 Rustに送る直前で % から 小数（/100）に戻す
+        burdenRatio: Number(editData.burdenRatio || 0) / 100,
         loadValue: Number(editData.loadValue),
         assignedDate: editData.assignedDate,
         completedDate: finalCompletedDate,
@@ -106,7 +149,7 @@ export default function ProjectDetail() {
     try {
       await invoke("delete_project", { id: Number(id) });
       alert("削除しました");
-      navigate(-1);
+      handleBack(); 
     } catch (error) {
       alert("削除に失敗しました: " + error);
     }
@@ -121,14 +164,14 @@ export default function ProjectDetail() {
       <div className="tab-content detail-full-screen">
         <header className="detail-header-full">
           <div className="title-area">
-            <h1 className="project-title-display">{editData.projectName}</h1>
+            <h1 className="project-title-display">{project.projectName}</h1>
             <div className="client-info-banner">
               <span className="label">CLIENT:</span>
               <span className="value">{project.clientName}</span>
             </div>
           </div>
           <div className="header-actions">
-            <button className="retro-btn secondary" onClick={() => navigate(-1)}>BACK</button>
+            <button className="retro-btn secondary" onClick={handleBack}>BACK</button>
           </div>
         </header>
 
@@ -139,21 +182,17 @@ export default function ProjectDetail() {
             
             <div className="form-group">
               <label className="form-label">プロジェクト名称</label>
-              <input
-                className="form-input"
-                type="text"
-                value={editData.projectName || ""}
-                onChange={(e) => setEditData({ ...editData, projectName: e.target.value })}
-              />
+              <input name="projectName" className="form-input" type="text" value={editData.projectName || ""} onChange={handleChange} />
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="form-group flex-1">
                 <label className="form-label">ステータス</label>
                 <select
+                  name="status"
                   className="form-input status-select"
                   value={editData.status || ""}
-                  onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+                  onChange={handleChange}
                   style={{
                     borderColor: editData.status === "完了" ? "#2ecc71" : "var(--border-color)",
                     fontWeight: editData.status === "完了" ? "bold" : "normal"
@@ -164,59 +203,53 @@ export default function ProjectDetail() {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">割振日 (LOAD基準日)</label>
-                <input
-                  className="form-input"
-                  type="date"
-                  value={editData.assignedDate || ""}
-                  onChange={(e) => setEditData({ ...editData, assignedDate: e.target.value })}
-                />
+              <div className="form-group flex-1">
+                <label className="form-label">ルートタイプ</label>
+                <select name="rootType" className="form-input" value={editData.rootType || "N"} onChange={handleChange}>
+                  {ROOT_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="form-group flex-1">
                 <label className="form-label">売上金額 (JPY)</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  value={editData.salesAmount ?? 0}
-                  onChange={(e) => setEditData({ ...editData, salesAmount: e.target.value as any })}
-                />
+                <input name="salesAmount" className="form-input" type="number" value={editData.salesAmount ?? 0} onChange={handleChange} />
               </div>
-              <div className="form-group">
+              <div className="form-group flex-1">
                 <label className="form-label">粗利金額 (JPY)</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  value={editData.grossProfitAmount ?? 0}
-                  onChange={(e) => setEditData({ ...editData, grossProfitAmount: e.target.value as any })}
-                />
+                <input name="grossProfitAmount" className="form-input" type="number" value={editData.grossProfitAmount ?? 0} onChange={handleChange} />
               </div>
             </div>
 
             <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">負担割合 (%)</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  step="0.1"
-                  value={editData.burdenRatio ?? 0}
-                  onChange={(e) => setEditData({ ...editData, burdenRatio: e.target.value as any })}
+              <div className="form-group flex-1">
+                <label className="form-label">計上負担割合 (%)</label>
+                <input 
+                  name="burdenRatio" 
+                  className="form-input" 
+                  type="number" 
+                  step="0.1" 
+                  max="100"
+                  min="0"
+                  value={editData.burdenRatio ?? 0} 
+                  onChange={handleChange} 
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group flex-1">
                 <label className="form-label">負荷値 (LOAD SCORE)</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  step="0.1"
-                  value={editData.loadValue ?? 0}
-                  onChange={(e) => setEditData({ ...editData, loadValue: e.target.value as any })}
-                />
+                <input name="loadValue" className="form-input" type="number" step="0.1" value={editData.loadValue ?? 0} onChange={handleChange} />
               </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group flex-1">
+                <label className="form-label">割振日 (LOAD基準日)</label>
+                <input name="assignedDate" className="form-input" type="date" value={editData.assignedDate || ""} onChange={handleChange} />
+              </div>
+              <div className="form-group flex-1"></div>
             </div>
 
             <div className="action-footer">
@@ -234,19 +267,25 @@ export default function ProjectDetail() {
                 <p className="date-val highlight">{project.currentScheduledDate}</p>
               </div>
               {project.completedDate && (
-                <div className="date-item completed-box" style={{ border: '2px solid #2ecc71', padding: '8px', marginBottom: '10px', backgroundColor: '#f0fff4', borderRadius: '4px' }}>
-                  <label style={{ color: '#27ae60', fontWeight: 'bold' }}>完了確定日</label>
-                  <p className="date-val" style={{ color: '#27ae60', fontSize: '1.2rem' }}>{project.completedDate}</p>
+                <div className="date-item completed-box">
+                  <label>完了確定日</label>
+                  <p className="date-val">{project.completedDate}</p>
                 </div>
               )}
               <div className="date-item">
                 <label>当初計上予定日</label>
-                <p className="date-val">{project.initialScheduledDate || "---"}</p>
+                <p className="date-val">{project.originalScheduledDate || "---"}</p>
               </div>
             </div>
 
             <div className="history-log-area">
-              <h3 className="side-title">HISTORY LOG</h3>
+              <div className="side-title-header">
+                <h3 className="side-title">HISTORY LOG</h3>
+                <button className="retro-btn secondary history-add-btn" onClick={() => openHistoryLogRegistration(project.id)}>
+                  + 履歴登録
+                </button>
+              </div>
+              
               <div className="history-scroll">
                 {histories.length === 0 ? (
                   <p className="no-history">履歴なし</p>
@@ -255,12 +294,16 @@ export default function ProjectDetail() {
                     <div key={h.id} className="history-card">
                       <div className="history-meta">
                         <span className="h-date">{new Date(h.changedAt).toLocaleDateString()}</span>
-                        <span className="h-label">変更</span>
+                        <span className="h-label">{h.oldDate !== h.newDate ? "変更" : "コメント"}</span>
                       </div>
                       <div className="h-flow">
-                        <span className="old">{h.oldDate || "始"}</span>
-                        <span className="arrow">→</span>
-                        <span className="new">{h.newDate}</span>
+                        {h.oldDate !== h.newDate && (
+                          <div>
+                            <span className="old">{h.oldDate || "始"}</span>
+                            <span className="arrow">→</span>
+                            <span className="new">{h.newDate}</span>
+                          </div>
+                        )}
                       </div>
                       {h.changeReason && <div className="h-reason">{h.changeReason}</div>}
                     </div>

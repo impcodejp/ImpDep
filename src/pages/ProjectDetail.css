@@ -1,5 +1,7 @@
 /* src/pages/ProjectDetail.css */
 
+/* --- 既存の App.css の世界観を継承したレイアウト --- */
+
 .detail-full-screen {
   display: flex;
   flex-direction: column;
@@ -19,7 +21,11 @@
   margin: 0;
   text-align: left;
   font-size: 2rem;
-  text-shadow: none;
+  /* App.css の h1 デザインを詳細画面用に調整 */
+  color: var(--accent-color);
+  font-family: var(--font-family-retro);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--border-color);
 }
 
 .client-info-banner {
@@ -29,26 +35,50 @@
   padding: 5px 15px;
   border: 2px solid var(--border-color);
   display: inline-block;
+  box-shadow: 4px 4px 0 var(--border-color);
 }
 
-.client-info-banner .label { color: var(--accent-color); font-weight: bold; margin-right: 10px; }
+.client-info-banner .label { 
+  color: var(--accent-color); 
+  font-weight: bold; 
+  margin-right: 10px; 
+}
 
-/* 2カラムレイアウト */
+/* 2カラムレイアウト（左：編集フォーム、右：履歴・予定） */
 .detail-grid-layout {
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 30px;
   flex: 1;
-  min-height: 0;
+  min-height: 0; /* 子要素のスクロールを有効にするために必要 */
 }
 
 .main-edit-pane {
   background: #fff;
   padding: 20px;
-  border-right: 2px dashed var(--border-color);
+  /* App.css の dashed ボーダーに合わせる */
+  border-right: 3px dashed var(--border-color);
   overflow-y: auto;
 }
 
+/* --- 💡 リファクタリングで追加した横並び用クラス --- */
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 0.5rem; /* 下の余白を調整 */
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ステータスが「完了」の時の特別色 */
+.status-select {
+  transition: all 0.2s ease;
+}
+
+/* --- サイドパネル（履歴・スケジュール） --- */
 .side-info-pane {
   display: flex;
   flex-direction: column;
@@ -56,39 +86,50 @@
   min-height: 0;
 }
 
-/* フォーム調整 */
-.action-footer {
-  display: flex;
-  gap: 20px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 3px double var(--border-color);
-}
-
-.save-btn { flex: 2; margin-top: 0; }
-.delete-btn { flex: 1; }
-
-/* サイドバー要素 */
 .date-summary-card {
   background: var(--bg-color);
   border: 3px solid var(--border-color);
   padding: 15px;
-  box-shadow: 4px 4px 0 var(--border-color);
+  box-shadow: 6px 6px 0 var(--border-color); /* App.css のボタン等と統一 */
 }
 
 .side-title {
   font-family: var(--font-family-retro);
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin-top: 0;
-  border-bottom: 2px solid var(--border-color);
-  margin-bottom: 10px;
+  border-bottom: 3px dashed var(--border-color);
+  margin-bottom: 12px;
+  color: var(--text-color);
 }
 
-.date-item label { font-size: 0.75rem; color: #666; display: block; }
-.date-val { font-family: var(--font-family-retro); font-size: 1.2rem; margin: 2px 0 10px 0; }
-.date-val.highlight { color: var(--accent-color); font-weight: bold; }
+.date-item label { 
+  font-size: 0.75rem; 
+  color: #666; 
+  display: block; 
+  font-family: var(--font-family-main);
+}
 
-/* 履歴カード形式（コンパクト化） */
+.date-val { 
+  font-family: var(--font-family-retro); 
+  font-size: 1.2rem; 
+  margin: 2px 0 10px 0; 
+}
+
+.date-val.highlight { 
+  color: var(--accent-color); 
+  font-weight: bold; 
+}
+
+/* 完了確定日の特別な強調表示 */
+.completed-box {
+  border: 3px solid #2ecc71;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f0fff4;
+  box-shadow: 4px 4px 0 #2ecc71;
+}
+
+/* 履歴ログエリア */
 .history-log-area {
   flex: 1;
   display: flex;
@@ -104,16 +145,109 @@
 
 .history-card {
   background: white;
-  border: 2px solid var(--border-color);
-  padding: 10px;
-  margin-bottom: 10px;
+  border: 3px solid var(--border-color);
+  padding: 12px;
+  margin-bottom: 12px;
   font-size: 0.85rem;
+  box-shadow: 4px 4px 0 var(--border-color);
 }
 
-.history-meta { display: flex; justify-content: space-between; margin-bottom: 5px; }
-.h-date { font-family: var(--font-family-retro); font-weight: bold; }
-.h-label { background: var(--border-color); color: white; padding: 0 4px; font-size: 0.7rem; }
+.history-meta { 
+  display: flex; 
+  justify-content: space-between; 
+  margin-bottom: 8px; 
+}
 
-.h-flow { display: flex; align-items: center; gap: 8px; font-family: var(--font-family-retro); }
-.h-flow .arrow { color: var(--accent-color); font-weight: bold; }
-.h-reason { margin-top: 5px; color: #666; font-style: italic; border-top: 1px dotted #ccc; padding-top: 3px; }
+.h-date { 
+  font-family: var(--font-family-retro); 
+  font-weight: bold; 
+}
+
+.h-label { 
+  background: var(--border-color); 
+  color: white; 
+  padding: 2px 6px; 
+  font-size: 0.7rem; 
+  font-family: var(--font-family-retro);
+}
+
+.h-flow { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  font-family: var(--font-family-retro); 
+  font-size: 0.95rem;
+}
+
+.h-flow .arrow { 
+  color: var(--accent-color); 
+  font-weight: bold; 
+}
+
+.h-reason { 
+  margin-top: 8px; 
+  color: #666; 
+  font-style: italic; 
+  border-top: 1px dotted var(--border-color); 
+  padding-top: 5px; 
+}
+
+/* 下部アクションエリア */
+.action-footer {
+  display: flex;
+  gap: 20px;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 4px double var(--border-color);
+  
+  /* 💡 追加: 子要素（ボタン）の縦幅を揃える */
+  align-items: stretch; 
+}
+
+/* ボタンの共通設定を上書き */
+.action-footer .submit-button,
+.action-footer .retro-btn {
+  /* 💡 高さを統一 (お好みの高さに調整してください) */
+  height: 50px; 
+  
+  /* 💡 内部の余白をリセットして中央寄せにする */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0; 
+  
+  /* フォントサイズも揃えるとより綺麗です */
+  font-size: 1rem;
+}
+
+.side-title-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px dashed var(--border-color);
+  margin-bottom: 12px;
+  padding-bottom: 5px;
+}
+
+/* 履歴登録ボタン：小さくして見出しに合わせる */
+.history-add-btn {
+  height: 28px !important; /* 他のボタンの高さ指定に負けないように */
+  font-size: 0.7rem !important;
+  padding: 0 8px !important;
+  box-shadow: 2px 2px 0 var(--border-color) !important;
+  white-space: nowrap;
+}
+
+.history-add-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--border-color) !important;
+}
+
+/* 既存の side-title から下線を消す（ヘッダー側に持たせたため） */
+.side-title {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+}
+
+.save-btn { flex: 2; }
+.delete-btn { flex: 1; }

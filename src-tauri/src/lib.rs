@@ -24,6 +24,7 @@ pub fn run() {
                 commands::window_commands::open_edit_window,
                 commands::window_commands::open_project_registration_window,
                 commands::window_commands::open_project_detail_window,
+                commands::window_commands::open_history_log_registration_window,
                 // 取引先関連操作コマンド
                 commands::client_commands::add_client,
                 commands::client_commands::get_client_by_code,
@@ -36,14 +37,17 @@ pub fn run() {
                 commands::project_commands::get_project_detail,
                 commands::project_commands::get_project_history_list,
                 commands::project_commands::update_project_details,
+                commands::project_commands::delete_project,
+                // プロジェクト変更履歴関連操作コマンド
+                commands::project_change_log_commands::register_history_log,
             ])
         .setup(|app| {
             tauri::async_runtime::block_on(async {
-                let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+                let impdep_url = env::var("IMPDEP_URL").expect("IMPDEP_URL must be set");
                 
                 let pool = PgPoolOptions::new()
                     .max_connections(5)
-                    .connect(&database_url)
+                    .connect(&impdep_url)
                     .await
                     .expect("Failed to connect to Postgres");
 

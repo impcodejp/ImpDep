@@ -1,4 +1,5 @@
 use sqlx::PgPool;
+use sqlx::{Pool, Postgres};
 use crate::models::project::{ ProjectWithClient, ProjectDateHistory, ProjectWithClient2};
 use crate::models::dashboard::DashboardSummary;
 use sqlx::types::BigDecimal; 
@@ -65,6 +66,7 @@ pub async fn update_project_details(
     sales_amount: BigDecimal,
     gross_profit_amount: BigDecimal,
     status: String,
+    root_type: Option<String>,
     burden_ratio: BigDecimal,
     load_value: BigDecimal, // 💡 もしここが元々 BigDecimal なら渡す時にキャスト
     assigned_date: Option<NaiveDate>,
@@ -81,22 +83,24 @@ pub async fn update_project_details(
             sales_amount = $2,
             gross_profit_amount = $3,
             status = $4,
-            burden_ratio = $5,
-            load_value = $6,
-            assigned_date = $7,
-            completed_date = $8,
+            root_type = $5,
+            burden_ratio = $6,
+            load_value = $7,
+            assigned_date = $8,
+            completed_date = $9,
             updated_at = NOW()
-        WHERE id = $9
+        WHERE id = $10
         "#,
         project_name,         // $1
         sales_amount,         // $2
         gross_profit_amount,  // $3
         status,               // $4
-        burden_ratio,         // $5
-        load_i32,             // $6 (i32) 💡 ここでキャスト済みの値を渡す
-        assigned_date,        // $7
-        completed_date,       // $8
-        id                    // $9
+        root_type,            // $5
+        burden_ratio,         // $6
+        load_i32,             // $7 (i32) 💡 ここでキャスト済みの値を渡す
+        assigned_date,        // $8
+        completed_date,       // $9
+        id                    // $10
     )
     .execute(pool)
     .await?;
@@ -219,7 +223,7 @@ pub async fn get_project_by_id(pool: &PgPool, id: i32) -> Result<ProjectWithClie
         SELECT 
             p.id, p.project_name, c.client_name, p.sales_amount, 
             p.gross_profit_amount, p.current_scheduled_date, p.original_scheduled_date,
-            p.status, p.burden_ratio, p.load_value, p.assigned_date, p.completed_date
+            p.status, p.root_type, p.burden_ratio, p.load_value, p.assigned_date, p.completed_date
         FROM projects p
         JOIN clients c ON p.client_id = c.id
         WHERE p.id = $1
@@ -230,4 +234,18 @@ pub async fn get_project_by_id(pool: &PgPool, id: i32) -> Result<ProjectWithClie
     .await?;
     
     Ok(project)
+}
+
+pub async fn delete_project(pool: &Pool<Postgres>, id: i32) -> sqlx::Result<()> {
+    sqlx::query!(
+        r#"
+        DELETE FROM projects
+        WHERE id = $1
+        "#,
+        id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
 }

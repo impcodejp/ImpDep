@@ -34,6 +34,15 @@ export default function Dashboard() {
 
   if (!summary) return <div className="loading">読み込み中...</div>;
 
+    // 💡 ダブルクリック時の処理（Rust側のコマンドを呼ぶ）
+  const handleDoubleClick = async (id: number) => {
+    try {
+      await invoke("open_project_detail_window", { id });
+    } catch (error) {
+      console.error("詳細ウィンドウの展開に失敗:", error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* 月切り替え */}
@@ -83,9 +92,13 @@ export default function Dashboard() {
           </thead>
           <tbody>
             {summary.upcomingProjects.map((p) => {
-              const isDone = p.status === '完了' || p.status === '送付済' || p.status === '検収合意';
+              const isDone = p.status === '完了';
               return (
-                <tr key={p.id} className={isDone ? 'row-completed' : ''}>
+                <tr 
+                  key={p.id} 
+                  className={isDone ? 'row-completed' : ''}
+                  onDoubleClick={() => handleDoubleClick(p.id)}
+                  >
                   <td>{p.currentScheduledDate}</td>
                   <td className="bold">{p.projectName}</td>
                   <td>{p.clientName}</td>

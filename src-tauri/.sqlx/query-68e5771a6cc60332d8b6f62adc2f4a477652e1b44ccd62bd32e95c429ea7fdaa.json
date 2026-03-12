@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, client_code, client_name, usegali, useml, usexro\n        FROM clients\n        WHERE client_code = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "client_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "usegali",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "useml",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "usexro",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "68e5771a6cc60332d8b6f62adc2f4a477652e1b44ccd62bd32e95c429ea7fdaa"
+}
