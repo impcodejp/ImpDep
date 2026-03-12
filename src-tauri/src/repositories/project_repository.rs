@@ -16,6 +16,7 @@ pub async fn create_project(
     ratio: f64,
     load: f64,
     assigned_date_str: &str,
+    root_type: &str,
 ) -> Result<(), sqlx::Error> {
     let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
         .expect("Invalid date format");
@@ -27,7 +28,6 @@ pub async fn create_project(
     let profit_bd = BigDecimal::from_str(&profit.to_string()).unwrap_or_default();
     let ratio_bd = BigDecimal::from_str(&ratio.to_string()).unwrap_or_default();
     
-    // 💡 エラー修正: DB側が INTEGER なら i32 にキャストして渡す
     let load_i32 = load as i32; 
 
     sqlx::query!(
@@ -35,9 +35,9 @@ pub async fn create_project(
         INSERT INTO public.projects (
             project_name, client_id, sales_amount, gross_profit_amount,
             original_scheduled_date, current_scheduled_date,
-            status, burden_ratio, load_value, created_at, updated_at, assigned_date
+            status, burden_ratio, load_value, created_at, updated_at, assigned_date, root_type
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW(), $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW(), $10, $11)
         "#,
         name,
         client_id,
@@ -48,7 +48,8 @@ pub async fn create_project(
         "割振済",
         ratio_bd,
         load_i32, // 💡 $9 (i32)
-        assigned_date
+        assigned_date,
+        root_type
     )
     .execute(pool)
     .await?;

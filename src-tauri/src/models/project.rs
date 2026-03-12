@@ -4,6 +4,7 @@ use chrono::{NaiveDate, DateTime, Utc};
 use sqlx::types::BigDecimal; // 💡 これを構造体でも使います
 
 
+// プロジェクト構造体
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Project {
@@ -21,8 +22,10 @@ pub struct Project {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub assigned_date: NaiveDate,
+    pub root_type: String,
 }
 
+// Client名を結合したプロジェクト構造体
 #[derive(Debug, Serialize, Deserialize, FromRow)] // 💡 ここに FromRow があれば query_as! で使えます
 #[serde(rename_all = "camelCase")]
 pub struct ProjectWithClient {
@@ -37,6 +40,7 @@ pub struct ProjectWithClient {
     pub load_value: i32, // 💡 ここも i32 に
 }
 
+// Client名を結合したプロジェクト構造体（計上予定日も）
 #[derive(Debug, Serialize, Deserialize, FromRow)] // 💡 ここに FromRow があれば query_as! で使えます
 #[serde(rename_all = "camelCase")]
 pub struct ProjectWithClient2 {
@@ -54,7 +58,7 @@ pub struct ProjectWithClient2 {
     pub completed_date: Option<NaiveDate>, // 💡 ここも i32 に
 }
 
-
+// プロジェクト更新用構造体
 // 💡 追加：計上予定変更履歴用
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
@@ -62,7 +66,7 @@ pub struct ProjectDateHistory {
     pub id: i32,
     pub project_id: i32,
     pub old_date: Option<NaiveDate>, // 初回変更時はNULLの可能性があるのでOption
-    pub new_date: NaiveDate,
+    pub new_date: Option<NaiveDate>, // 変更なしでテキストだけ変更するケースもあるのでOption
     pub change_reason: Option<String>, // 理由も空かもしれないのでOption
     pub changed_at: DateTime<Utc>,
 }

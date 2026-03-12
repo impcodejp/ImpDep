@@ -7,6 +7,12 @@ interface Client {
   clientName: string;
 }
 
+const RootTypeOptions = [
+  { value: "A", label: "追加" },
+  { value: "N", label: "新規" },
+  // 必要に応じて他のルートタイプも追加
+];
+
 export default function ProjectRegistration() {
   const [projectName, setProjectName] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -23,6 +29,7 @@ export default function ProjectRegistration() {
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [rootType, setRootType] = useState("N"); // 💡 ルートタイプのステートを追加
 
   const handleClientCodeBlur = async () => {
     if (!clientSearchCode) return;
@@ -63,7 +70,8 @@ export default function ProjectRegistration() {
         // 💡 Rust側に送るパラメータ
         burdenRatio: parseFloat(burdenRatio) || 0,
         loadValue: parseFloat(loadValue) || 0,
-        assignedDate: assignedDate || null // 💡 空文字の場合は null として送る
+        assignedDate: assignedDate || null,
+        rootType: rootType || "N", 
       });
       alert("案件を登録しました！");
       
@@ -102,6 +110,19 @@ export default function ProjectRegistration() {
               </div>
             </div>
             {/* 検索パネル部分は必要に応じて表示 */}
+          </div>
+
+          <div style={{ display: "flex", gap: "20px"}}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">ルートタイプ:</label>
+              <select className="form-input" value={rootType} onChange={(e) => setRootType(e.target.value)}>
+                {RootTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: "20px" }}>

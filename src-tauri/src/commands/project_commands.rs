@@ -17,7 +17,8 @@ pub async fn create_project(
     scheduled_date: String,
     burden_ratio: f64,
     load_value: f64,
-    assigned_date: String, // 💡 フロントから受け取る引数を追加
+    assigned_date: String,
+    root_type: String,
 ) -> Result<(), String> {
     
     project_repository::create_project(
@@ -29,7 +30,8 @@ pub async fn create_project(
         &scheduled_date,
         burden_ratio / 100.0,
         load_value,
-        &assigned_date, // 💡 これを最後に追加！
+        &assigned_date,
+        &root_type,
     )
     .await
     .map_err(|e| e.to_string())
