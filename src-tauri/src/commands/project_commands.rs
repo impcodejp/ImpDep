@@ -1,4 +1,4 @@
-// src/commands/project_commands.rs
+// src-tauri/src/commands/project_commands.rs
 use tauri::State;
 use crate::AppState;
 use crate::repositories::project_repository;
@@ -12,8 +12,8 @@ pub async fn create_project(
     state: tauri::State<'_, AppState>,
     project_name: String,
     client_id: i32,
-    sales: f64,
-    gross_profit: f64,
+    sales: String,           // 💡 f64 -> String に変更
+    gross_profit: String,    // 💡 f64 -> String に変更
     scheduled_date: String,
     burden_ratio: f64,
     load_value: f64,
@@ -21,12 +21,18 @@ pub async fn create_project(
     root_type: String,
 ) -> Result<(), String> {
     
+    // 💡 サーバー側で String から BigDecimal に安全に変換（エラー時はフロントに返す）
+    let sales_bd = BigDecimal::from_str(&sales)
+        .map_err(|_| "売上金額の形式が正しくありません")?;
+    let profit_bd = BigDecimal::from_str(&gross_profit)
+        .map_err(|_| "粗利金額の形式が正しくありません")?;
+
     project_repository::create_project(
         &state.db,
         &project_name,
         client_id,
-        sales,
-        gross_profit,
+        sales_bd,   // 💡 変換済みの BigDecimal を渡す
+        profit_bd,  // 💡 変換済みの BigDecimal を渡す
         &scheduled_date,
         burden_ratio / 100.0,
         load_value,
@@ -58,32 +64,26 @@ pub async fn get_project_detail(
 }
 
 #[tauri::command]
-pub async fn get_project_history_list(
-    state: tauri::State<'_, AppState>,
-    id: i32
-) -> Result<Vec<ProjectDateHistory>, String> {
-    crate::repositories::project_repository::get_project_history(&state.db, id)
-        .await
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
 pub async fn update_project_details(
     state: tauri::State<'_, AppState>,
     id: i32,
     project_name: String,
-    sales_amount: f64,
-    gross_profit_amount: f64,
+    sales_amount: String,        // 💡 f64 -> String に変更
+    gross_profit_amount: String, // 💡 f64 -> String に変更
     status: String,
     root_type: Option<String>,
     burden_ratio: f64,
     load_value: f64,
     assigned_date: Option<String>,
-    completed_date: Option<String>, // 💡 フロントから Option<string | null> で届く
+    completed_date: Option<String>,
 ) -> Result<(), String> {
-    // 1. 数値を BigDecimal に変換
-    let sales_bd = BigDecimal::from_str(&sales_amount.to_string()).unwrap_or_default();
-    let profit_bd = BigDecimal::from_str(&gross_profit_amount.to_string()).unwrap_or_default();
+    // 1. 金額（String）を BigDecimal に変換
+    let sales_bd = BigDecimal::from_str(&sales_amount)
+        .map_err(|_| "売上金額の形式が正しくありません")?;
+    let profit_bd = BigDecimal::from_str(&gross_profit_amount)
+        .map_err(|_| "粗利金額の形式が正しくありません")?;
+        
+    // その他の数値変換（一旦そのまま）
     let ratio_bd = BigDecimal::from_str(&burden_ratio.to_string()).unwrap_or_default();
     let load_bd = BigDecimal::from_str(&load_value.to_string()).unwrap_or_default();
 
@@ -99,8 +99,8 @@ pub async fn update_project_details(
         &state.db,
         id,
         project_name,
-        sales_bd,
-        profit_bd,
+        sales_bd,     // 💡 変換済みの値を渡す
+        profit_bd,    // 💡 変換済みの値を渡す
         status,
         root_type,
         ratio_bd,
@@ -112,6 +112,18 @@ pub async fn update_project_details(
     .map_err(|e| e.to_string())
 }
 
+// 💡 復活させました！
+#[tauri::command]
+pub async fn get_project_history_list(
+    state: tauri::State<'_, AppState>,
+    id: i32
+) -> Result<Vec<ProjectDateHistory>, String> {
+    crate::repositories::project_repository::get_project_history(&state.db, id)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+// 💡 復活させました！
 #[tauri::command]
 pub async fn delete_project(
     state: State<'_, AppState>,
@@ -119,7 +131,7 @@ pub async fn delete_project(
 ) -> Result<(), String> {
     println!("DEBUG: Deleting project ID: {}", id);
 
-    let pool = &state.db; // 先ほどのデバッグで判明した通り 'db' を指定
+    let pool = &state.db;
 
     project_repository::delete_project(pool, id)
         .await

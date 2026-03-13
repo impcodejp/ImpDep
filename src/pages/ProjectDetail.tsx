@@ -10,8 +10,9 @@ interface ProjectDetailData {
   id: number;
   projectName: string;
   clientName: string;
-  salesAmount: number;
-  grossProfitAmount: number;
+  // 💡 金額は string で受け取る
+  salesAmount: string;
+  grossProfitAmount: string;
   currentScheduledDate: string;
   originalScheduledDate: string | null;
   status: string;
@@ -57,7 +58,6 @@ export default function ProjectDetail() {
       ]);
       
       setProject(detail);
-      // 💡 DBの小数(0.7)を画面用の%(70)に変換してセット
       setEditData({
         ...detail,
         burdenRatio: detail.burdenRatio * 100
@@ -99,7 +99,12 @@ export default function ProjectDetail() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // 数値入力の場合は数値として保持
+    // 💡 金額は丸め誤差を防ぐため文字列のまま保持する
+    if (name === "salesAmount" || name === "grossProfitAmount") {
+      setEditData(prev => ({ ...prev, [name]: value }));
+      return;
+    }
+    // その他の数値入力は数値として保持
     const val = e.target.type === "number" ? parseFloat(value) : value;
     setEditData(prev => ({ ...prev, [name]: val }));
   };
@@ -126,11 +131,11 @@ export default function ProjectDetail() {
       await invoke("update_project_details", {
         id: Number(id),
         projectName: editData.projectName,
-        salesAmount: Number(editData.salesAmount),
-        grossProfitAmount: Number(editData.grossProfitAmount),
+        // 💡 Rustに文字列として安全に送る
+        salesAmount: String(editData.salesAmount || "0"),
+        grossProfitAmount: String(editData.grossProfitAmount || "0"),
         status: editData.status,
         rootType: editData.rootType,
-        // 💡 Rustに送る直前で % から 小数（/100）に戻す
         burdenRatio: Number(editData.burdenRatio || 0) / 100,
         loadValue: Number(editData.loadValue),
         assignedDate: editData.assignedDate,
@@ -216,11 +221,12 @@ export default function ProjectDetail() {
             <div className="form-row">
               <div className="form-group flex-1">
                 <label className="form-label">売上金額 (JPY)</label>
-                <input name="salesAmount" className="form-input" type="number" value={editData.salesAmount ?? 0} onChange={handleChange} />
+                {/* 💡 valueは文字列のままバインドする */}
+                <input name="salesAmount" className="form-input" type="number" value={editData.salesAmount ?? "0"} onChange={handleChange} />
               </div>
               <div className="form-group flex-1">
                 <label className="form-label">粗利金額 (JPY)</label>
-                <input name="grossProfitAmount" className="form-input" type="number" value={editData.grossProfitAmount ?? 0} onChange={handleChange} />
+                <input name="grossProfitAmount" className="form-input" type="number" value={editData.grossProfitAmount ?? "0"} onChange={handleChange} />
               </div>
             </div>
 

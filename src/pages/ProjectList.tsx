@@ -6,8 +6,8 @@ interface ProjectWithClient {
   id: number;
   projectName: string;
   clientName: string;
-  salesAmount: number;
-  grossProfitAmount: number;
+  salesAmount: string;       // 💡 number から string に変更
+  grossProfitAmount: string; // 💡 number から string に変更
   currentScheduledDate: string;
   status: string;
   burdenRatio: number;
@@ -85,8 +85,8 @@ export default function ProjectList() {
                   <td>{p.currentScheduledDate}</td>
                   <td className="bold">{p.projectName}</td>
                   <td>{p.clientName}</td>
-                  <td className="text-right">¥{p.salesAmount.toLocaleString()}</td>
-                  <td className="text-right">¥{p.grossProfitAmount.toLocaleString()}</td>
+                  <td className="text-right">¥{Number(p.salesAmount).toLocaleString()}</td>
+                  <td className="text-right">¥{Number(p.grossProfitAmount).toLocaleString()}</td>
                   <td className="text-center">
                     <span className={`status-badge ${p.status}`}>
                       {p.status}

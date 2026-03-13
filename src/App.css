@@ -500,3 +500,13 @@ main:not(.main-container) {
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
+
+.clickable-folder {
+  cursor: pointer;
+  user-select: none; /* ダブルクリックしても文字が選択されないようにする */
+  transition: opacity 0.2s;
+}
+
+.clickable-folder:hover {
+  opacity: 0.7; /* マウスを乗せると少しだけ透明になってクリックできる感を出す */
+}

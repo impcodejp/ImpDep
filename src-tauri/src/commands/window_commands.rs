@@ -112,3 +112,25 @@ pub async fn open_history_log_registration_window(handle: tauri::AppHandle, id: 
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn open_load_transition_report(handle: tauri::AppHandle) -> Result<(), String> {
+    // 既にウィンドウが開いているかチェック（二重開き防止）
+    if let Some(window) = handle.get_webview_window("load_transition_report") {
+        window.set_focus().map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+
+    tauri::WebviewWindowBuilder::new(
+        &handle,
+        "load_transition_report",
+        tauri::WebviewUrl::App("/LoadTransitionReport".into())
+    )
+    .title("請負負荷推移表")
+    .inner_size(600.0, 700.0)
+    .maximized(true)
+    .resizable(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+  Ok(())
+}

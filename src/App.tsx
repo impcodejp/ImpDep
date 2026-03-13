@@ -11,7 +11,8 @@ import ClientList from "./pages/ClientList";
 import ProjectRegistration from "./pages/ProjectRegistration";
 import ProjectList from "./pages/ProjectList"; 
 import ProjectDetail from "./pages/ProjectDetail"; // 💡 追加：詳細画面をインポート
-import HistoryLogRegistration from "./pages/HistoryLogRegistration"; // 💡 追加：履歴登録画面をインポート
+import HistoryLogRegistration from "./pages/HistoryLogRegistration";
+import LoadTransitionReport from "./pages/LoadTransitionReport";
 
 import "./App.css";
 
@@ -44,6 +45,14 @@ function MainScreen() {
       console.error("ウィンドウ展開エラー:", error);
     }
   };
+
+  const openLoadTransitionReport = async () => {
+    try {
+      await invoke("open_load_transition_report");
+    } catch (error) {
+      console.error("ウィンドウ展開エラー:", error);
+    }
+  }
 
   return (
     <main className="main-container">
@@ -94,6 +103,7 @@ function MainScreen() {
             openClientRegistration={openClientRegistration}
             openClientEdit={openClientEdit}
             openProjectRegistration={openProjectRegistration}
+            openLoadTransitionReport={openLoadTransitionReport}
             setActiveTab={setActiveTab}
           />
         )}
@@ -129,6 +139,7 @@ function App() {
         <Route path="/project-detail/:id" element={<ProjectDetail />} />
         {/* 💡 追記：履歴登録画面（サブウィンドウ用） */}
         <Route path="/history-log-registration/:id" element={<HistoryLogRegistration />} />
+        <Route path="/LoadTransitionReport" element={<LoadTransitionReport />} />
       </Routes>
     </BrowserRouter>
   );

@@ -11,8 +11,8 @@ pub async fn create_project(
     pool: &PgPool,
     name: &str,
     client_id: i32,
-    sales: f64,
-    profit: f64,
+    sales_bd: BigDecimal,   // 💡 f64 から BigDecimal に変更
+    profit_bd: BigDecimal,  // 💡 f64 から BigDecimal に変更
     date_str: &str,
     ratio: f64,
     load: f64,
@@ -25,8 +25,8 @@ pub async fn create_project(
     let assigned_date = NaiveDate::parse_from_str(assigned_date_str, "%Y-%m-%d")
         .expect("Invalid assigned date format");
 
-    let sales_bd = BigDecimal::from_str(&sales.to_string()).unwrap_or_default();
-    let profit_bd = BigDecimal::from_str(&profit.to_string()).unwrap_or_default();
+    // 💡 不要になった sales_bd と profit_bd の変換処理を削除しました
+
     let ratio_bd = BigDecimal::from_str(&ratio.to_string()).unwrap_or_default();
     
     let load_i32 = load as i32; 
@@ -42,13 +42,13 @@ pub async fn create_project(
         "#,
         name,
         client_id,
-        sales_bd,
-        profit_bd,
+        sales_bd,   // 💡 そのまま渡す
+        profit_bd,  // 💡 そのまま渡す
         date,
         date,
         "割振済",
         ratio_bd,
-        load_i32, // 💡 $9 (i32)
+        load_i32,
         assigned_date,
         root_type
     )
@@ -68,11 +68,10 @@ pub async fn update_project_details(
     status: String,
     root_type: Option<String>,
     burden_ratio: BigDecimal,
-    load_value: BigDecimal, // 💡 もしここが元々 BigDecimal なら渡す時にキャスト
+    load_value: BigDecimal,
     assigned_date: Option<NaiveDate>,
     completed_date: Option<NaiveDate>,
 ) -> Result<(), sqlx::Error> {
-    // 💡 エラー修正: 渡す直前に i32 に変換
     let load_i32 = load_value.to_string().parse::<i32>().unwrap_or_default();
 
     sqlx::query!(
@@ -97,7 +96,7 @@ pub async fn update_project_details(
         status,               // $4
         root_type,            // $5
         burden_ratio,         // $6
-        load_i32,             // $7 (i32) 💡 ここでキャスト済みの値を渡す
+        load_i32,             // $7
         assigned_date,        // $8
         completed_date,       // $9
         id                    // $10

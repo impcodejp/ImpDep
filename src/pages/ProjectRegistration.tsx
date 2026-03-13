@@ -136,8 +136,9 @@ export default function ProjectRegistration() {
       await invoke("create_project", {
         projectName: formData.projectName,
         clientId: selectedClient.id,
-        sales: parseFloat(formData.sales) || 0,
-        grossProfit: parseFloat(formData.grossProfit) || 0,
+        // 💡 金額は文字列のまま送る（未入力時は "0" にする）
+        sales: formData.sales || "0",
+        grossProfit: formData.grossProfit || "0",
         scheduledDate: formData.scheduledDate,
         burdenRatio: parseFloat(formData.burdenRatio) || 0,
         loadValue: parseFloat(formData.loadValue) || 0,
@@ -188,7 +189,6 @@ export default function ProjectRegistration() {
                     placeholder="コード"
                   />
                 </div>
-                {/* 確定ボタン: EnterでonClickが走る。onClick内でfocusNextElementを呼ぶ */}
                 <button 
                   type="button" 
                   className="retro-btn primary" 
@@ -222,7 +222,6 @@ export default function ProjectRegistration() {
                     />
                     <button type="button" className="retro-btn primary" onClick={handleSearch}>検索</button>
                   </div>
-                  {/* ...検索結果リスト... */}
                   {searchResults.length > 0 && (
                     <ul className="search-result-list">
                       {searchResults.map((c) => (

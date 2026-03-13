@@ -13,7 +13,11 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    dotenv().ok();
+    // 開発時（デバッグビルド）のみ .env ファイルを読み込む
+    if cfg!(debug_assertions) {
+        dotenv().ok();
+        println!("🔧 開発モード: .env ファイルを読み込みました");
+    }
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -21,10 +25,12 @@ pub fn run() {
                 commands::dashboard_commands::get_dashboard_summary,
                 // ウィンドウ表示コマンド
                 commands::window_commands::open_registration_window,
+                // ウィンドウ表示コマンド（追加分）
                 commands::window_commands::open_edit_window,
                 commands::window_commands::open_project_registration_window,
                 commands::window_commands::open_project_detail_window,
                 commands::window_commands::open_history_log_registration_window,
+                commands::window_commands::open_load_transition_report,
                 // 取引先関連操作コマンド
                 commands::client_commands::add_client,
                 commands::client_commands::get_client_by_code,
@@ -40,26 +46,52 @@ pub fn run() {
                 commands::project_commands::delete_project,
                 // プロジェクト変更履歴関連操作コマンド
                 commands::project_change_log_commands::register_history_log,
+                // 帳票出力関連操作コマンド
+                commands::report_commands::get_monthly_load_transition,
             ])
         .setup(|app| {
-            tauri::async_runtime::block_on(async {
-                let impdep_url = env::var("IMPDEP_URL").expect("IMPDEP_URL must be set");
+            // asyncブロックを定義
+            let _handle = app.handle().clone();
+            tauri::async_runtime::block_on(async move {
                 
-                let pool = PgPoolOptions::new()
+                // 1. 環境変数の取得
+                let db_url = if cfg!(debug_assertions) {
+                    env::var("DATABASE_URL").expect("開発環境では .env に DATABASE_URL を設定してください")
+                } else {
+                    env::var("IMPDEP_URL").expect("本番環境では OSの環境変数 IMPDEP_URL を設定してください")
+                };
+                
+                // 2. データベース接続
+                let pool = match PgPoolOptions::new()
                     .max_connections(5)
-                    .connect(&impdep_url)
-                    .await
-                    .expect("Failed to connect to Postgres");
+                    .connect(&db_url)
+                    .await {
+                        Ok(p) => p,
+                        Err(e) => {
+                            eprintln!("❌ データベース接続失敗: {:?}", e);
+                            // 接続できない場合はここでパニックさせるか、適切に終了処理を書く
+                            panic!("Failed to connect to Postgres: {}", e);
+                        }
+                    };
 
-                // --- ここから追加 ---
-                // migrationsフォルダ内のSQLを読み込み、未実行のものがあれば実行する
-                sqlx::migrate!("./migrations")
-                    .run(&pool)
-                    .await
-                    .expect("Failed to run database migrations");
-                println!("Database migrations completed successfully!!");
-                // --- ここまで追加 --
+                // 3. マイグレーションの実行
+                // expect() で落とさずに match で結果を確認するようにします
+                match sqlx::migrate!("./migrations").run(&pool).await {
+                    Ok(_) => {
+                        println!("✅ Database migrations completed successfully!!");
+                    },
+                    Err(e) => {
+                        // ここでエラー内容を詳細に表示（VersionMissing などがここでわかります）
+                        eprintln!("⚠️ マイグレーション実行中にエラーが発生しました:");
+                        eprintln!("詳細: {:?}", e);
+                        
+                        // 開発を止めないために panic させない選択肢もありますが、
+                        // DB整合性が崩れている場合は止めたほうが安全なため、情報を出した上で panic させます
+                        panic!("Migration error: {}", e);
+                    }
+                }
 
+                // 状態の管理
                 app.manage(AppState { db: pool });
             });
             Ok(())
