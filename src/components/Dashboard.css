@@ -1,3 +1,5 @@
+/* src\components\Dashboard.css */
+
 .dashboard-split-container {
   display: flex;
   height: 100%;
@@ -216,3 +218,39 @@
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes blink { 50% { opacity: 0.4; } }
+
+/* src\components\Dashboard.css に追加 */
+
+.fiscal-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.stat-card.budget-info {
+  border-top-color: var(--accent-color);
+  background-color: #fcfcfc;
+}
+
+.stat-card.budget-info .main-value {
+  font-size: 2rem;
+  color: var(--text-color);
+}
+
+.stat-card.budget-info .unit {
+  font-size: 1rem;
+  margin-left: 4px;
+}
+
+.stat-card.budget-info {
+  border-top-color: #95a5a6; /* デフォルトカラー */
+  background-color: #fafafa;
+}
+
+.budget-detail-text {
+  line-height: 1.4;
+  border-left: 2px solid #ddd;
+  padding-left: 8px;
+  margin: 8px 0;
+}

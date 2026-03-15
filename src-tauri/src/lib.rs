@@ -6,6 +6,7 @@ use std::env;
 pub mod models;
 pub mod repositories;
 pub mod commands;
+pub mod service;
 
 pub struct AppState {
     db: Pool<Postgres>,
@@ -23,6 +24,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
                 // ダッシュボード関連コマンド
                 commands::dashboard_commands::get_dashboard_summary,
+                commands::dashboard_commands::get_fiscal_summary,
                 // ウィンドウ表示コマンド
                 commands::window_commands::open_registration_window,
                 // ウィンドウ表示コマンド（追加分）
@@ -31,6 +33,7 @@ pub fn run() {
                 commands::window_commands::open_project_detail_window,
                 commands::window_commands::open_history_log_registration_window,
                 commands::window_commands::open_load_transition_report,
+                commands::window_commands::open_budget_setting,
                 // 取引先関連操作コマンド
                 commands::client_commands::add_client,
                 commands::client_commands::get_client_by_code,
@@ -46,6 +49,8 @@ pub fn run() {
                 commands::project_commands::delete_project,
                 // プロジェクト変更履歴関連操作コマンド
                 commands::project_change_log_commands::register_history_log,
+                // 予算登録関連コマンド
+                commands::budget_commands::save_budget_settings,
                 // 帳票出力関連操作コマンド
                 commands::report_commands::get_monthly_load_transition,
             ])

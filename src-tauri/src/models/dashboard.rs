@@ -4,7 +4,7 @@ use sqlx::types::BigDecimal;
 use crate::models::project::ProjectWithClient;
 
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")] // 💡 これが重要！Rustの蛇身(sales_plan)をJSの駱駝(salesPlan)に変換します
+#[serde(rename_all = "camelCase")]
 pub struct DashboardSummary {
     pub monthly_sales_plan: BigDecimal,
     pub monthly_sales_actual: BigDecimal,
@@ -12,4 +12,16 @@ pub struct DashboardSummary {
     pub monthly_profit_actual: BigDecimal,
     pub upcoming_projects: Vec<ProjectWithClient>,
     pub load_value_sum: BigDecimal,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardBudget {
+    pub load_point: BigDecimal,
+    pub profit_sum: BigDecimal,
+    pub profit_budget: BigDecimal,
+    pub profit_point: BigDecimal,
+    pub new_profit_sum: BigDecimal,
+    pub new_profit_budget: BigDecimal,
+    pub new_profit_point: BigDecimal,
 }

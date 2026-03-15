@@ -6,6 +6,7 @@ interface MenuProps {
   openClientEdit: () => void;
   openProjectRegistration: () => void;
   openLoadTransitionReport: () => void;
+  openBudgetSetting: () => void;
   setActiveTab: (tab: 'dashboard' | 'menu' | 'clientList' | 'projectList') => void;
 }
 
@@ -14,6 +15,7 @@ const Menu: React.FC<MenuProps> = ({
   openClientEdit,
   openProjectRegistration,
   openLoadTransitionReport,
+  openBudgetSetting,
   setActiveTab
 }) => {
   // 💡 修正：初期状態をすべて false (閉じている状態) に変更しました！
@@ -99,6 +101,11 @@ const Menu: React.FC<MenuProps> = ({
               <li>
                 <button className="tree-item-button" onClick={openClientEdit}>
                   📝 取引先マスタ更新
+                </button>
+              </li>
+              <li>
+                <button className="tree-item-button" onClick={openBudgetSetting}>
+                  💰 予算登録
                 </button>
               </li>
             </ul>

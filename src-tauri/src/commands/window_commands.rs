@@ -134,3 +134,25 @@ pub async fn open_load_transition_report(handle: tauri::AppHandle) -> Result<(),
     .map_err(|e| e.to_string())?;
   Ok(())
 }
+
+#[tauri::command]
+pub async fn open_budget_setting(handle: tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = handle.get_webview_window("budget_setting") {
+        window.set_focus().map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+
+    // 新規ウィンドウの作成
+    tauri::WebviewWindowBuilder::new(
+        &handle,
+        "budget_setting",
+        tauri::WebviewUrl::App("/BudgetSetting".into())
+    )
+    .title("予算設定")
+    .inner_size(750.0,900.0) 
+    .resizable(false)         
+    .build()
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

@@ -4,3 +4,4 @@ pub mod project_commands;
 pub mod dashboard_commands;
 pub mod project_change_log_commands;
 pub mod report_commands;
+pub mod budget_commands;
