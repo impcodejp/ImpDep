@@ -15,7 +15,7 @@ pub async fn get_summary_by_period(
     let stats = sqlx::query!(
         r#"
         SELECT 
-            COALESCE(SUM(CASE WHEN root_type = 'new' THEN gross_profit_amount ELSE 0 END), 0) as "new_actual_profit!",
+            COALESCE(SUM(CASE WHEN root_type = 'N' THEN gross_profit_amount ELSE 0 END), 0) as "new_actual_profit!",
             COALESCE(SUM(gross_profit_amount), 0) as "actual_profit!"
         FROM projects
         WHERE completed_date >= $1

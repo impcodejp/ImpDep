@@ -1,5 +1,4 @@
 use sqlx::types::BigDecimal;
-use serde::Deserialize;
 
 #[derive(serde::Deserialize)]
 pub struct BudgetInput {

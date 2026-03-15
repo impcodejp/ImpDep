@@ -99,7 +99,8 @@ export default function Dashboard() {
         {/* 1. 負荷スコアエリア */}
         <div className="summary-section">
           <div className="load-value-card-compact">
-            <label className="load-label">CURRENT LOAD SCORE (Target: {loadThreshold})</label>
+            <label className="load-label">CURRENT LOAD SCORE</label>
+            <label className="load-label"> (Max line: {loadThreshold})</label>
             <div className="main-value">
               {(Number(summary.loadValueSum) || 0).toFixed(2)} <span className="unit">pts</span>
             </div>

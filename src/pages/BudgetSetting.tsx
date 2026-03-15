@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { invoke } from "@tauri-apps/api/core"; // 💡 追加
+import { invoke } from "@tauri-apps/api/core";
 import './BudgetSetting.css';
 
 const BudgetSetting: React.FC = () => {
@@ -15,7 +15,12 @@ const BudgetSetting: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 💡 確認ダイアログ（履歴が残るため、念のため）
+    // 💡 適用開始年月がない場合はバリデーション
+    if (!formData.start_date_of_application) {
+      alert("適用開始年月は必須入力です。");
+      return;
+    }
+
     if (!window.confirm(`${formData.start_date_of_application} 適用分として保存しますか？`)) {
       return;
     }
@@ -23,20 +28,20 @@ const BudgetSetting: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // 💡 Rust 側の save_budget_settings を呼び出し
-      // input というキーの中に構造体をラップして渡します
+      // 💡 空文字を null に変換するヘルパー関数
+      const toNullable = (val: string) => (val.trim() === '' ? null : val);
+
       const response = await invoke<string>('save_budget_settings', {
         input: {
           start_date_of_application: parseInt(formData.start_date_of_application),
-          gross_profit_budget: formData.gross_profit_budget,
-          new_gross_profit_budget: formData.new_gross_profit_budget,
-          max_load_score: formData.max_load_score,
+          // 💡 これらは任意入力（Null許容）
+          gross_profit_budget: toNullable(formData.gross_profit_budget),
+          new_gross_profit_budget: toNullable(formData.new_gross_profit_budget),
+          max_load_score: toNullable(formData.max_load_score),
         }
       });
 
-      alert(response); // "予算設定を新規登録しました"
-      
-      // 保存成功後はダッシュボード（または前の画面）へ戻る
+      alert(response);
       window.history.back();
       
     } catch (error) {
@@ -61,8 +66,9 @@ const BudgetSetting: React.FC = () => {
           <div className="edit-form-title">Budget Entry</div>
           
           <form onSubmit={handleSubmit}>
+            {/* 適用開始年月：これだけは必須 */}
             <div className="form-group">
-              <label className="form-label">適用開始年月</label>
+              <label className="form-label">適用開始年月 <span style={{color: 'var(--accent-color)'}}>*</span></label>
               <input
                 type="number"
                 className="form-input"
@@ -75,16 +81,16 @@ const BudgetSetting: React.FC = () => {
               <p className="info-text">※YYYYMM形式で入力してください</p>
             </div>
 
+            {/* 以下、任意項目（requiredを外しました） */}
             <div className="form-group">
               <label className="form-label">粗利計上予算</label>
               <div className="currency-input-wrapper">
                 <input
                   type="number"
                   className="form-input number-align"
-                  placeholder="0"
+                  placeholder="未設定"
                   value={formData.gross_profit_budget}
                   onChange={(e) => setFormData({...formData, gross_profit_budget: e.target.value})}
-                  required
                   disabled={isSubmitting}
                 />
                 <span className="currency-unit">¥</span>
@@ -97,10 +103,9 @@ const BudgetSetting: React.FC = () => {
                 <input
                   type="number"
                   className="form-input number-align"
-                  placeholder="0"
+                  placeholder="未設定"
                   value={formData.new_gross_profit_budget}
                   onChange={(e) => setFormData({...formData, new_gross_profit_budget: e.target.value})}
-                  required
                   disabled={isSubmitting}
                 />
                 <span className="currency-unit">¥</span>
@@ -113,15 +118,14 @@ const BudgetSetting: React.FC = () => {
                 <input
                   type="number"
                   className="form-input number-align"
-                  placeholder="100"
+                  placeholder="未設定"
                   value={formData.max_load_score}
                   onChange={(e) => setFormData({...formData, max_load_score: e.target.value})}
-                  required
                   disabled={isSubmitting}
                 />
                 <span className="currency-unit">pts</span>
               </div>
-              <p className="info-text">※これを超えるアサイン時に警告を表示します</p>
+              <p className="info-text">※空欄の場合は、最新の設定値が維持されます</p>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
