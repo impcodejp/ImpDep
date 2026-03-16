@@ -1,5 +1,6 @@
 // src/components/Menu.tsx
 import React, { useState } from "react";
+import "./Menu.css";
 
 interface MenuProps {
   openClientRegistration: () => void;

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import Dashboard from "./components/Dashboard"; 
 import Menu from "./components/Menu";
+import "./MainScreen.css";
 
 // 各ページコンポーネントのインポート
 import ClientRegistration from "./pages/ClientRegistration";

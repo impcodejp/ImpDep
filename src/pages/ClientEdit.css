@@ -1,0 +1,84 @@
+/* src/pages/ClientEdit.css */
+
+/* 検索エリア（レトロモダン風） */
+.search-section {
+  background-color: var(--bg-color);
+  border: 3px solid var(--border-color);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 6px 6px 0 var(--border-color);
+}
+
+.search-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.id-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 検索枠パネル */
+.search-panel {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #FFFFFF;
+  border: 3px dashed var(--border-color);
+}
+
+.search-result-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  border-top: 2px dashed var(--border-color);
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 2px dashed var(--border-color);
+  font-family: var(--font-family-main);
+}
+
+.btn-select {
+  background-color: var(--checkbox-accent);
+  color: white;
+  border: 2px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-family-retro);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--border-color);
+}
+
+.btn-select:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--border-color);
+}
+
+/* フォームのタイトル部分 */
+.edit-form-title {
+  font-family: var(--font-family-retro);
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  border-bottom: 3px dashed var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.clickable-folder {
+  cursor: pointer;
+  user-select: none; 
+  transition: opacity 0.2s;
+}
+
+.clickable-folder:hover {
+  opacity: 0.7; 
+}
