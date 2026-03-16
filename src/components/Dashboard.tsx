@@ -14,20 +14,23 @@ interface DashboardSummary {
 // 💡 最新の Rust 構造体に合わせたインターフェース
 interface DashboardBudget {
   loadPoint: string;
-  profitSum: string;
-  profitBudget: string;
-  profitPoint: string;
-  newProfitSum: string;
-  newProfitBudget: string;
-  newProfitPoint: string;
+  profitSum: string;               // 当月までの累計
+  profitBudget: string;            // 期間予算
+  profitPoint: string;             // 累計の達成率
+  profitSumThismonth: string;      // 当月実績
+  profitPointThismonth: string;    // 期間予算に占める当月実績割合
+  newProfitSum: string;            // 当月迄の累計
+  newProfitBudget: string;         // 期間予算 
+  newProfitPoint: string;          // 累計達成率
+  newProfitSumThismonth: string;   // 当月実績
+  newProfitPointThismonth: string; // 期間予算に占める当月実施割合
 }
 
 export default function Dashboard() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [viewDate, setViewDate] = useState(new Date());
   const [budget, setBudget] = useState<DashboardBudget | null>(null);
-  
-  const [rightWidth, setRightWidth] = useState(33.3); 
+  const [rightWidth, setRightWidth] = useState(33.3);
   const isResizing = useRef(false);
 
   const loadDashboard = async () => {
@@ -52,14 +55,13 @@ export default function Dashboard() {
   useEffect(() => { loadDashboard(); }, [viewDate]);
 
   const loadThreshold = budget ? (Number(budget.loadPoint) || 100) : 100;
-
   const startResizing = () => { isResizing.current = true; document.body.style.cursor = "col-resize"; };
   const stopResizing = () => { isResizing.current = false; document.body.style.cursor = "default"; };
   
   const resize = (e: MouseEvent) => {
     if (!isResizing.current) return;
     const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
-    if (newWidth > 15 && newWidth < 70) { 
+    if (newWidth > 15 && newWidth < 70) {
       setRightWidth(newWidth);
     }
   };
@@ -80,7 +82,7 @@ export default function Dashboard() {
   if (!summary) return <div className="loading">読み込み中...</div>;
 
   const handleDoubleClick = async (id: number) => {
-    try { await invoke("open_project_detail_window", { id }); } 
+    try { await invoke("open_project_detail_window", { id }); }
     catch (error) { console.error("失敗:", error); }
   };
 
@@ -149,29 +151,63 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* 3. 💡 期間集計エリア（新規追加） */}
+        {/* 3. 期間集計エリア */}
         {budget && (
-          <div className="fiscal-stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+          <div className="stats-horizontal-grid">
             {[
-              { label: "粗利計上予算達成率", actual: budget.profitSum, plan: budget.profitBudget, point: budget.profitPoint, color: "var(--checkbox-accent)" },
-              { label: "新規粗利計上予算達成率", actual: budget.newProfitSum, plan: budget.newProfitBudget, point: budget.newProfitPoint, color: "#f1c40f" }
+              // 順番を入れ替え＆新規粗利の type を "sales"（売上と同色）に変更
+              {
+                label: "新規粗利 予算進捗",
+                actualSum: budget.newProfitSum,
+                actualThisMonth: budget.newProfitSumThismonth,
+                plan: budget.newProfitBudget,
+                pointSum: budget.newProfitPoint,
+                pointThisMonth: budget.newProfitPointThismonth,
+                type: "sales" 
+              },
+              {
+                label: "粗利計上 予算進捗",
+                actualSum: budget.profitSum,                 
+                actualThisMonth: budget.profitSumThismonth,  
+                plan: budget.profitBudget,                   
+                pointSum: budget.profitPoint,                
+                pointThisMonth: budget.profitPointThismonth, 
+                type: "profit" 
+              }
             ].map((item) => (
-              <div key={item.label} className="stat-card budget-info">
+              <div key={item.label} className={`stat-card ${item.type}`}>
                 <label className="stat-card-label">{item.label}</label>
-                <div className="values-comparison" style={{marginBottom: '5px'}}>
-                   <div className="main-value" style={{fontSize: '1.8rem'}}>
-                    {Number(item.point).toFixed(1)} <span className="unit" style={{fontSize: '0.9rem'}}>%</span>
+                <div className="values-comparison">
+                  <div className="value-block">
+                    <span className="block-label">期間予算</span>
+                    <div className="main-value">¥{formatYen(item.plan)}</div>
+                  </div>
+                  <div className="value-block">
+                    <span className="block-label">累計進捗</span>
+                    <div className="main-value">¥{formatYen(item.actualSum)}</div>
                   </div>
                 </div>
-                <div className="budget-detail-text" style={{ fontSize: '0.75rem', color: '#666', fontFamily: 'var(--font-family-retro)' }}>
-                  ACTUAL: ¥{formatYen(item.actual)}<br/>
-                  BUDGET: ¥{formatYen(item.plan)}
-                </div>
-                <div className="retro-progress-bg" style={{marginTop: '10px', height: '6px'}}>
-                  <div className="retro-progress-bar" style={{ 
-                    width: `${Math.min(Number(item.point), 100)}%`,
-                    backgroundColor: item.color 
-                  }}></div>
+                <div className="retro-progress-container">
+                  <div className="progress-info">
+                    {/* 左下に当月単月の実績を表示 */}
+                    <span className="remaining-text" style={{color: '#888'}}>
+                      当月実績: ¥{formatYen(item.actualThisMonth)} ({Number(item.pointThisMonth).toFixed(1)}%)
+                    </span>
+                    {/* 右上に累計の達成率を表示 */}
+                    <span className="percent-tag">{Number(item.pointSum).toFixed(1)}%</span>
+                  </div>
+                  <div className="retro-progress-bg">
+                    {/* 累計のバー（薄い色） */}
+                    <div 
+                      className="retro-progress-bar period-bg-bar" 
+                      style={{ width: `${Math.min(Number(item.pointSum), 100)}%` }}
+                    ></div>
+                    {/* 当月実績のバー（濃い色） */}
+                    <div 
+                      className="retro-progress-bar current-fg-bar" 
+                      style={{ width: `${Math.min(Number(item.pointThisMonth), 100)}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
             ))}

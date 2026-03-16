@@ -21,7 +21,11 @@ pub struct DashboardBudget {
     pub profit_sum: BigDecimal,
     pub profit_budget: BigDecimal,
     pub profit_point: BigDecimal,
+    pub profit_sum_thismonth: BigDecimal,
+    pub profit_point_thismonth: BigDecimal,
     pub new_profit_sum: BigDecimal,
     pub new_profit_budget: BigDecimal,
     pub new_profit_point: BigDecimal,
+    pub new_profit_sum_thismonth: BigDecimal,
+    pub new_profit_point_thismonth: BigDecimal,
 }

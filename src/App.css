@@ -25,9 +25,12 @@ body {
   font-family: var(--font-family-main);
 }
 
+/* ★変更: rootも画面ぴったりに制限します */
 #root {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- タイトル --- */
@@ -60,12 +63,13 @@ h1 {
    ========================================= */
 .main-container {
   width: 100%;
-  height: 100vh; /* 画面の高さを100%使います */
+  flex: 1; /* ★変更: rootの残りの高さをすべて使う */
   padding: 2rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ウィンドウ自体はスクロールさせない */
+  overflow: hidden; 
+  min-height: 0; /* ★追加: 画面以上にはみ出さないようにする魔法 */
 }
 
 .tab-header {
@@ -107,14 +111,18 @@ h1 {
   padding: 2.5rem;
   box-shadow: 10px 10px 0 var(--border-color);
   
-  /* タブの中身だけがスクロールするように設定 */
+  box-sizing: border-box; 
+  display: flex;          
+  flex-direction: column; 
+
   flex: 1;
+  min-height: 0; /* ★追加: タブの中身が膨張するのを防ぐ最強のストッパー */
   overflow-y: auto; 
+  overflow-x: hidden; 
   
   position: relative;
   z-index: 0;
 }
-
 
 /* =========================================
    サブウィンドウ（取引先登録など）の設定
@@ -123,7 +131,7 @@ main:not(.main-container) {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center; /* フォームを中央に配置 */
+  align-items: center; 
 }
 
 .registration-form {

@@ -7,22 +7,38 @@ use crate::models::dashboard::DashboardBudget;
 pub async fn get_summary_by_period(
     pool: &PgPool,
     start_date: NaiveDate,
-    end_date: NaiveDate,
+    _end_date: NaiveDate,
     target_month: String, // "20240801" 形式
 ) -> Result<DashboardBudget, sqlx::Error> {
     
-    // 1. 実績集計はそのまま
+    // 1. 実績集計
+    // 累計
     let stats = sqlx::query!(
         r#"
         SELECT 
-            COALESCE(SUM(CASE WHEN root_type = 'N' THEN gross_profit_amount ELSE 0 END), 0) as "new_actual_profit!",
-            COALESCE(SUM(gross_profit_amount), 0) as "actual_profit!"
+            COALESCE(SUM(CASE WHEN root_type = 'N' THEN gross_profit_amount * burden_ratio ELSE 0 END), 0) as "new_actual_profit!",
+            COALESCE(SUM(gross_profit_amount * burden_ratio), 0) as "actual_profit!"
         FROM projects
         WHERE completed_date >= $1
-          AND completed_date <= $2
+          AND completed_date <= (TO_DATE($2, 'YYYYMMDD') + INTERVAL '1 month' - INTERVAL '1 day')::date
         "#,
         start_date,
-        end_date
+        target_month
+    )
+    .fetch_one(pool)
+    .await?;
+
+    // 単月
+    let stats_thismonth = sqlx::query!(
+        r#"
+        SELECT 
+            COALESCE(SUM(CASE WHEN root_type = 'N' THEN gross_profit_amount * burden_ratio ELSE 0 END), 0) as "new_actual_profit!",
+            COALESCE(SUM(gross_profit_amount * burden_ratio), 0) as "actual_profit!"
+        FROM projects
+        WHERE completed_date >= TO_DATE($1, 'YYYYMMDD')
+          AND completed_date <= (TO_DATE($1, 'YYYYMMDD') + INTERVAL '1 month' - INTERVAL '1 day')::date
+        "#,
+        target_month,
     )
     .fetch_one(pool)
     .await?;
@@ -73,8 +89,12 @@ pub async fn get_summary_by_period(
         profit_sum: stats.actual_profit.clone(),
         profit_budget: b_profit.clone(),
         profit_point: calculate_point(&stats.actual_profit, &b_profit),
+        profit_sum_thismonth: stats_thismonth.actual_profit.clone(),
+        profit_point_thismonth: calculate_point(&stats_thismonth.actual_profit, &b_profit),
         new_profit_sum: stats.new_actual_profit.clone(),
         new_profit_budget: b_new_profit.clone(),
         new_profit_point: calculate_point(&stats.new_actual_profit, &b_new_profit),
+        new_profit_sum_thismonth: stats_thismonth.new_actual_profit.clone(),
+        new_profit_point_thismonth: calculate_point(&stats_thismonth.new_actual_profit, &b_new_profit),
     })
 }
