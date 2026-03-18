@@ -19,41 +19,28 @@ export default function ClientEditForm() {
   const [isSearching, setIsSearching] = useState(false);
   const [formData, setFormData] = useState<Client | null>(null);
 
-  // 💡 共通化：コードを受け取ってデータを取得する処理
   const fetchClientData = async (targetCode: string) => {
     try {
       const data = await invoke<Client>("get_client_by_code", { code: targetCode });
       setFormData(data);
       setSearchResults([]);
       setIsSearching(false);
-      setInputCode(targetCode); // 検索入力欄も合わせて更新
+      setInputCode(targetCode); 
     } catch (error) {
-      console.error("取得エラー:", error);
       alert("指定された取引先コードが見つかりませんでした");
       setFormData(null);
     }
   };
 
-  // 確定ボタンを押した時の処理
-  const handleLoadClient = () => {
-    if (inputCode) fetchClientData(inputCode);
-  };
+  const handleLoadClient = () => { if (inputCode) fetchClientData(inputCode); };
 
-  // 💡 追加：他ウィンドウ（一覧画面など）から「このコードを開いて！」と呼ばれた時の処理
   useEffect(() => {
     const unlisten = listen<{ code: string }>("load_client_for_edit", (event) => {
-      if (event.payload && event.payload.code) {
-        fetchClientData(event.payload.code);
-      }
+      if (event.payload && event.payload.code) fetchClientData(event.payload.code);
     });
-
-    // コンポーネントが閉じられる時にリスナーを解除する（クリーンアップ）
-    return () => {
-      unlisten.then((f) => f());
-    };
+    return () => { unlisten.then((f) => f()); };
   }, []);
 
-  // 名前であいまい検索する処理
   const handleSearch = async () => {
     if (!searchName) return;
     try {
@@ -61,12 +48,10 @@ export default function ClientEditForm() {
       setSearchResults(results);
       if (results.length === 0) alert("一致する取引先がありません");
     } catch (error) {
-      console.error("検索エラー:", error);
       alert(error);
     }
   };
 
-  // 検索結果から選択した時の処理
   const handleSelectSearchResult = (client: Client) => {
     setInputCode(client.clientCode);
     setFormData(client);
@@ -74,148 +59,126 @@ export default function ClientEditForm() {
     setIsSearching(false);
   };
 
-  // フォームの入力内容を変更した時の処理
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      };
-    });
+    setFormData((prev) => prev ? { ...prev, [name]: type === "checkbox" ? checked : value } : prev);
   };
 
-  // 更新を保存する処理
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await invoke("update_client", { payload: formData });
-      alert("取引先の情報を更新しました！");
+      alert("取引先の情報を更新しました。");
     } catch (error) {
-      console.error("更新エラー:", error);
       alert(error);
     }
   };
 
   return (
-    <main>
-      <div className="registration-form" style={{ maxWidth: "600px" }}>
+    <div className="native-window-container">
+      <header className="native-window-header">
         <h1>取引先マスタ更新</h1>
+      </header>
 
-        {/* --- コード入力・検索エリア --- */}
-        <div className="search-section">
-          <div className="search-inputs">
-            <div className="id-input-wrap">
-              <label className="form-label" style={{ marginBottom: 0 }}>コード:</label>
-              <input
-                type="text"
-                className="form-input"
-                style={{ width: "140px" }}
-                value={inputCode}
-                onChange={(e) => setInputCode(e.target.value)}
-                placeholder="コードを入力"
-              />
-            </div>
-            <button className="retro-btn primary" onClick={handleLoadClient}>確定</button>
-            <button className="retro-btn secondary" onClick={() => setIsSearching(!isSearching)}>
-              {isSearching ? "検索を閉じる" : "検索を開く"}
-            </button>
-          </div>
-
-          {/* 検索枠（トグルで表示/非表示） */}
-          {isSearching && (
-            <div className="search-panel">
-              <div style={{ display: "flex", gap: "10px" }}>
+      <div className="native-window-content">
+        <div className="native-form-body">
+          <fieldset className="native-fieldset search-section">
+            <legend>対象取引先の指定</legend>
+            <div className="search-inputs">
+              <label className="form-label" style={{ marginBottom: "4px" }}>取引先コード</label>
+              {/* 💡 修正：固定幅をなくし flex-1 で広げる */}
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", width: "100%" }}>
                 <input
                   type="text"
-                  className="form-input"
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="取引先名の一部を入力"
+                  className="native-input flex-1"
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value)}
                 />
-                <button className="retro-btn primary" onClick={handleSearch}>検索</button>
+                <button className="native-btn primary" onClick={handleLoadClient}>読込</button>
+                <button className="native-btn secondary" onClick={() => setIsSearching(!isSearching)}>
+                  {isSearching ? "検索を閉じる" : "名称で検索"}
+                </button>
               </div>
-
-              {/* 検索結果のリスト表示 */}
-              {searchResults.length > 0 && (
-                <ul className="search-result-list">
-                  {searchResults.map((c) => (
-                    <li key={c.id} className="search-result-item">
-                      <span>[{c.clientCode}] {c.clientName}</span>
-                      <button className="btn-select" onClick={() => handleSelectSearchResult(c)}>
-                        選択
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
+
+            {isSearching && (
+              <div className="search-panel">
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "1rem" }}>
+                  <input
+                    type="text"
+                    className="native-input flex-1"
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    placeholder="取引先名の一部"
+                  />
+                  <button className="native-btn primary" onClick={handleSearch}>検索</button>
+                </div>
+
+                {searchResults.length > 0 && (
+                  <ul className="native-list-box">
+                    {searchResults.map((c) => (
+                      <li key={c.id} className="list-box-item" onClick={() => handleSelectSearchResult(c)}>
+                        <span className="result-code">[{c.clientCode}]</span> {c.clientName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </fieldset>
+
+          {formData && (
+            <form onSubmit={handleSubmit} className="edit-form-wrapper">
+              <fieldset className="native-fieldset">
+                <legend>情報の編集</legend>
+                
+                <div className="form-group">
+                  <label className="form-label">取引先コード (読取専用)</label>
+                  <input
+                    type="text"
+                    name="clientCode"
+                    className="native-input readonly-input"
+                    value={formData.clientCode}
+                    readOnly
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">取引先名</label>
+                  <input
+                    type="text"
+                    name="clientName"
+                    className="native-input"
+                    value={formData.clientName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                
+                <div className="native-checkbox-area" style={{ marginTop: "1rem" }}>
+                  <label className="form-label">利用システム</label>
+                  <div className="checkbox-group-modern">
+                    <input type="checkbox" id="edit-usegali" name="usegali" className="checkbox-input" checked={formData.usegali} onChange={handleChange} />
+                    <label htmlFor="edit-usegali" className="checkbox-label">Galileopt</label>
+                  </div>
+                  <div className="checkbox-group-modern">
+                    <input type="checkbox" id="edit-useml" name="useml" className="checkbox-input" checked={formData.useml} onChange={handleChange} />
+                    <label htmlFor="edit-useml" className="checkbox-label">MJSLINK</label>
+                  </div>
+                  <div className="checkbox-group-modern">
+                    <input type="checkbox" id="edit-usexro" name="usexro" className="checkbox-input" checked={formData.usexro} onChange={handleChange} />
+                    <label htmlFor="edit-usexro" className="checkbox-label">Xronos</label>
+                  </div>
+                </div>
+              </fieldset>
+              
+              <div className="form-actions">
+                <button type="submit" className="native-btn primary-save">更新を保存する</button>
+              </div>
+            </form>
           )}
         </div>
-
-        {/* --- 編集フォームエリア --- */}
-        {formData && (
-          <form onSubmit={handleSubmit}>
-            <h3 className="edit-form-title">情報の編集</h3>
-            
-            <div className="form-group">
-              <label className="form-label">取引先コード:</label>
-              <input
-                type="text"
-                name="clientCode"
-                className="form-input"
-                value={formData.clientCode}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">取引先名:</label>
-              <input
-                type="text"
-                name="clientName"
-                className="form-input"
-                value={formData.clientName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <div className="checkbox-group">
-                <input
-                  type="checkbox" id="edit-usegali" name="usegali"
-                  className="checkbox-input"
-                  checked={formData.usegali} onChange={handleChange}
-                />
-                <label htmlFor="edit-usegali" className="checkbox-label">Galileoptを利用する</label>
-              </div>
-              
-              <div className="checkbox-group">
-                <input
-                  type="checkbox" id="edit-useml" name="useml"
-                  className="checkbox-input"
-                  checked={formData.useml} onChange={handleChange}
-                />
-                <label htmlFor="edit-useml" className="checkbox-label">MJSLINKを利用する</label>
-              </div>
-              
-              <div className="checkbox-group">
-                <input
-                  type="checkbox" id="edit-usexro" name="usexro"
-                  className="checkbox-input"
-                  checked={formData.usexro} onChange={handleChange}
-                />
-                <label htmlFor="edit-usexro" className="checkbox-label">Xronosを利用する</label>
-              </div>
-            </div>
-            
-            <button type="submit" className="submit-button">更新を保存する</button>
-          </form>
-        )}
       </div>
-    </main>
+    </div>
   );
 }

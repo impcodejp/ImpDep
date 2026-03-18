@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core"; // Tauri2.0の呼び出し機能を追加！
-import "../App.css";
+import { invoke } from "@tauri-apps/api/core";
+import "./ClientRegistration.css";
 
-function App() {
+export default function ClientRegistration() {
   const [formData, setFormData] = useState({
     clientCode: "",
     clientName: "",
@@ -11,7 +11,6 @@ function App() {
     usexro: false,
   });
 
-  // メッセージ表示用の状態（成功か失敗かと、そのテキスト）
   const [message, setMessage] = useState<{ type: "success" | "error" | ""; text: string }>({
     type: "",
     text: "",
@@ -27,16 +26,11 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage({ type: "", text: "" }); // 送信前に一度メッセージをクリア
+    setMessage({ type: "", text: "" }); 
 
     try {
-      // Rustの `add_client` コマンドを呼び出し、formDataを渡します！
       await invoke("add_client", { payload: formData });
-      
-      // 成功した場合の処理
-      setMessage({ type: "success", text: "データの登録が完了しました！" });
-      
-      // フォームを空に戻す（連続で登録しやすくするため）
+      setMessage({ type: "success", text: "データの登録が完了しました。" });
       setFormData({
         clientCode: "",
         clientName: "",
@@ -44,78 +38,87 @@ function App() {
         useml: false,
         usexro: false,
       });
-
     } catch (error) {
-      // Rust側でエラー（Err）が返ってきた場合の処理
       console.error(error);
       setMessage({ type: "error", text: `エラーが発生しました: ${error}` });
     }
   };
 
   return (
-    <main>
-      <h1>取引先マスタ登録</h1>
+    <div className="native-window-container">
+      <header className="native-window-header">
+        <h1>取引先マスタ登録</h1>
+      </header>
 
-      <form className="registration-form" onSubmit={handleSubmit}>
-        
-        {/* --- メッセージ表示エリア --- */}
-        {message.text && (
-          <div className={`message-box ${message.type}`}>
-            {message.text}
+      <div className="native-window-content">
+        <form onSubmit={handleSubmit} className="native-form-body">
+          {message.text && (
+            <div className={`native-message-box ${message.type}`}>
+              {message.text}
+            </div>
+          )}
+
+          <div className="form-group">
+            <label className="form-label">取引先コード</label>
+            <input
+              type="text"
+              name="clientCode"
+              value={formData.clientCode}
+              onChange={handleChange}
+              placeholder="例: C0001"
+              className="native-input"
+              required
+            />
           </div>
-        )}
 
-        <div className="form-group">
-          <label className="form-label">取引先コード</label>
-          <input
-            type="text"
-            name="clientCode"
-            value={formData.clientCode}
-            onChange={handleChange}
-            placeholder="例: C0001"
-            className="form-input"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label className="form-label">取引先名</label>
+            <input
+              type="text"
+              name="clientName"
+              value={formData.clientName}
+              onChange={handleChange}
+              placeholder="株式会社〇〇"
+              className="native-input"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label className="form-label">取引先名</label>
-          <input
-            type="text"
-            name="clientName"
-            value={formData.clientName}
-            onChange={handleChange}
-            placeholder="株式会社〇〇"
-            className="form-input"
-            required
-          />
-        </div>
+          <div className="native-checkbox-area">
+            <label className="form-label">利用システムの選択</label>
+            <div className="checkbox-group-modern">
+              <input
+                type="checkbox" id="reg-usegali" name="usegali"
+                className="checkbox-input"
+                checked={formData.usegali} onChange={handleChange}
+              />
+              <label htmlFor="reg-usegali" className="checkbox-label">Galileopt</label>
+            </div>
+            <div className="checkbox-group-modern">
+              <input
+                type="checkbox" id="reg-useml" name="useml"
+                className="checkbox-input"
+                checked={formData.useml} onChange={handleChange}
+              />
+              <label htmlFor="reg-useml" className="checkbox-label">MJSLINK</label>
+            </div>
+            <div className="checkbox-group-modern">
+              <input
+                type="checkbox" id="reg-usexro" name="usexro"
+                className="checkbox-input"
+                checked={formData.usexro} onChange={handleChange}
+              />
+              <label htmlFor="reg-usexro" className="checkbox-label">Xronos</label>
+            </div>
+          </div>
 
-        <div className="form-group">
-          <label className="checkbox-group">
-            <input type="checkbox" name="usegali" checked={formData.usegali} onChange={handleChange} className="checkbox-input" />
-            <span className="checkbox-label">Galileoptを使用する</span>
-          </label>
-        </div>
-        <div className="form-group">
-          <label className="checkbox-group">
-            <input type="checkbox" name="useml" checked={formData.useml} onChange={handleChange} className="checkbox-input" />
-            <span className="checkbox-label">MJSLINKを使用する</span>
-          </label>
-        </div>
-        <div className="form-group">
-          <label className="checkbox-group">
-            <input type="checkbox" name="usexro" checked={formData.usexro} onChange={handleChange} className="checkbox-input" />
-            <span className="checkbox-label">Xronosを使用する</span>
-          </label>
-        </div>
-
-        <button type="submit" className="submit-button">
-          登録する
-        </button>
-      </form>
-    </main>
+          <div className="form-actions">
+            <button type="submit" className="native-btn primary-save">
+              登録する
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
-
-export default App;

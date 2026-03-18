@@ -37,7 +37,8 @@ pub struct ProjectWithClient {
     pub current_scheduled_date: NaiveDate,
     pub status: String,
     pub burden_ratio: BigDecimal,
-    pub load_value: i32, // 💡 ここも i32 に
+    pub load_value: i32,
+    pub root_type:Option<String>,
 }
 
 // Client名を結合したプロジェクト構造体（計上予定日も）

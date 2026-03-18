@@ -1,127 +1,202 @@
 /* src/pages/LoadTransitionReport.css */
 
+/* -----------------------------------------
+   デスクトップアプリらしいフラットなコンテナ
+   ----------------------------------------- */
 .report-container {
-  padding: 1rem 0;
-  animation: fadeIn 0.3s ease-in-out;
+  /* カード化（影・角丸・中央寄せ）を完全に廃止し、ペイン全体に広げる */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color); /* 画面全体の背景色に馴染ませる */
+  animation: fadeIn 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ヘッダー部分 */
+/* -----------------------------------------
+   ヘッダー部分（ネイティブのタイトルバー下のように）
+   ----------------------------------------- */
 .report-header {
-  margin-bottom: 2rem;
-  border-bottom: 3px dashed var(--border-color);
-  padding-bottom: 1rem;
+  padding: 1.5rem 2rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
 
 .report-header h2 {
-  font-family: var(--font-family-retro);
-  color: var(--accent-color);
-  margin: 0 0 0.5rem 0;
-  font-size: 1.8rem;
+  margin: 0 0 0.4rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
 }
 
 .report-header p {
   margin: 0;
-  color: #666;
-  font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  font-weight: 500;
 }
 
-/* 検索（期間指定）バー */
+/* -----------------------------------------
+   検索（期間指定）バー（ツールバー風にスッキリと）
+   ----------------------------------------- */
 .report-search-bar {
-  background-color: var(--form-bg);
-  border: 3px solid var(--border-color);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 6px 6px 0 var(--border-color);
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
   align-items: center;
+  gap: 1.5rem;
+  padding: 0.8rem 2rem;
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
 
 .search-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
-/* テーブルを囲むレトロな枠 */
-.report-table-wrapper {
+.search-group .form-label {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* 日付入力欄（OS標準に近いソリッドなデザインに） */
+.search-group input[type="month"] {
+  width: auto;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border-light);
+  border-radius: 4px; /* 丸みを抑える */
   background-color: var(--form-bg);
-  border: 4px solid var(--border-color);
-  box-shadow: 10px 10px 0 var(--border-color);
-  padding: 1.5rem;
-  overflow-x: auto;
-  max-width: 600px;
-  margin: 0 auto; /* 中央寄せ */
+  color: var(--text-main);
+  font-family: var(--font-family-retro);
+  font-size: 0.9rem;
+  cursor: text;
+  transition: border-color 0.15s ease;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }
 
-/* テーブル本体 */
+.search-group input[type="month"]:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+/* ボタン（影や過剰な丸みを排除し、カチッとした作りに） */
+.report-search-bar .retro-btn.primary {
+  background-color: var(--accent-color);
+  color: #FFF;
+  border: none;
+  border-radius: 4px; /* ネイティブボタンのような小さな角丸 */
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: none; /* Webっぽい浮遊感を消す */
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.report-search-bar .retro-btn.primary:hover:not(:disabled) {
+  background-color: #D66D50;
+}
+
+.report-search-bar .retro-btn:disabled {
+  background-color: #E0E0E0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* -----------------------------------------
+   テーブルエリア（Finderやエクスプローラーのリストビュー風）
+   ----------------------------------------- */
+.report-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--form-bg); /* 表の背景だけ白くする */
+}
+
+/* テーブル用スクロールバー */
+.report-table-wrapper::-webkit-scrollbar { width: 8px; }
+.report-table-wrapper::-webkit-scrollbar-track { background: transparent; border-left: 1px solid var(--border-light); }
+.report-table-wrapper::-webkit-scrollbar-thumb { background: #C0C0C0; border-radius: 4px; border: 2px solid var(--form-bg); }
+
 .report-table {
   width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-family-main);
+  border-collapse: collapse; /* 隙間をなくし、ソリッドな罫線に */
+  margin-top: 0;
 }
 
-.report-table th,
-.report-table td {
-  border: 2px solid var(--border-color);
-  padding: 1rem;
-}
-
+/* テーブルヘッダー（OSのリストヘッダー風） */
 .report-table th {
-  background-color: var(--border-color);
-  color: var(--bg-color);
-  font-family: var(--font-family-retro);
-  font-weight: bold;
-  letter-spacing: 0.1em;
+  position: sticky;
+  top: 0;
+  background-color: #F5F5F5; /* 少しグレーがかったネイティブ風ヘッダー */
+  padding: 0.6rem 2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  border-bottom: 1px solid #D0D0D0; /* 少し濃い目の境界線 */
+  border-right: 1px solid var(--border-light);
+  z-index: 2;
+  letter-spacing: 0.02em;
 }
 
-/* 行のシマシマとホバー時の色変更 */
-.report-table tbody tr:nth-child(even) {
-  background-color: #fcfcfc;
+.report-table th:last-child {
+  border-right: none;
 }
 
-.report-table tbody tr:hover {
-  background-color: #FFF3E0;
-  transition: background-color 0.2s;
+/* テーブルセル */
+.report-table td {
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
 }
 
-/* ユーティリティ・テキスト装飾 */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.bold { font-weight: bold; }
+.report-table tr:last-child td {
+  border-bottom: none;
+}
 
+/* 行のホバー（ネイティブの選択色のような、ごく淡いハイライト） */
+.report-table tr:hover td {
+  background-color: #F0F4F8; 
+}
+
+/* -----------------------------------------
+   文字・数値の装飾
+   ----------------------------------------- */
 .month-label {
-  font-size: 1.1em;
+  font-size: 1rem;
+  color: var(--text-main);
   font-family: var(--font-family-retro);
 }
 
 .load-value {
-  color: var(--accent-color);
-  font-size: 1.3em;
+  font-size: 1.1rem;
+  color: var(--text-main);
   font-family: var(--font-family-retro);
 }
 
+/* 前月差分の文字 */
 .diff-value {
-  font-size: 0.85em;
-  margin-top: 4px;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  font-weight: 500;
   font-family: var(--font-family-retro);
-  font-weight: bold;
 }
 
-.diff-value.plus { color: #e74c3c; } /* 増えた時は赤 */
-.diff-value.minus { color: #2ecc71; } /* 減った時は緑 */
+.diff-value.plus { color: var(--accent-color); }
+.diff-value.minus { color: var(--blue-soft); }
 
-.no-data {
-  text-align: center;
-  padding: 2rem !important;
-  color: #888;
-  font-family: var(--font-family-retro);
+/* 共通ユーティリティ */
+.text-center { text-align: center !important; }
+.text-right { 
+  text-align: right !important; 
+  font-variant-numeric: tabular-nums; 
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

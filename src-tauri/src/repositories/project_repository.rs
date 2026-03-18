@@ -115,7 +115,7 @@ pub async fn get_all_projects(pool: &PgPool) -> Result<Vec<ProjectWithClient>, s
         SELECT 
             p.id, p.project_name, c.client_name, p.sales_amount, 
             p.gross_profit_amount, p.current_scheduled_date, 
-            p.status, p.burden_ratio, p.load_value
+            p.status, p.burden_ratio, p.load_value, p.root_type
         FROM projects p
         JOIN clients c ON p.client_id = c.id
         ORDER BY p.current_scheduled_date ASC
@@ -154,7 +154,7 @@ pub async fn get_dashboard_summary(
         SELECT 
             p.id, p.project_name, c.client_name, p.sales_amount, 
             p.gross_profit_amount, p.current_scheduled_date,
-            p.status, p.burden_ratio, p.load_value
+            p.status, p.burden_ratio, p.load_value, p.root_type
         FROM projects p
         JOIN clients c ON p.client_id = c.id
         WHERE p.current_scheduled_date >= TO_DATE($1, 'YYYY-MM-DD')

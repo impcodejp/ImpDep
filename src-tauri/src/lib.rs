@@ -51,6 +51,10 @@ pub fn run() {
                 commands::project_change_log_commands::register_history_log,
                 // 予算登録関連コマンド
                 commands::budget_commands::save_budget_settings,
+                // todo操作系コマンド
+                commands::todo_commands::get_todo,
+                commands::todo_commands::add_todo,
+                commands::todo_commands::update_todo_status,
                 // 帳票出力関連操作コマンド
                 commands::report_commands::get_monthly_load_transition,
             ])

@@ -1,295 +1,100 @@
-/* src/components/Dashboard.css */
-
-/* =========================================
-   ダッシュボード全体の大枠
-   ========================================= */
-.dashboard-split-container {
-  display: flex;
-  flex: 1; 
-  width: 100%;
-  min-height: 0; 
-  overflow: hidden;
+/* --- レイアウトの根幹 --- */
+.dash-root {
+  display: flex; flex-direction: column; height: 100%; width: 100%;
+  padding: 1.5rem 2.5rem 2.5rem; box-sizing: border-box; overflow: hidden;
   animation: fadeIn 0.4s ease-out;
 }
 
-/* =========================================
-   左エリア（負荷スコア・統計カード）
-   ========================================= */
-.dashboard-left-pane {
-  display: flex;
-  flex-direction: column;
-  padding-right: 10px;
-  min-width: 280px;
-  gap: 15px; 
-  height: 100%; 
-  box-sizing: border-box;
-  
-  /* ★変更: 絶対にスクロールさせず、1画面に強制的に収めます */
-  overflow: hidden; 
+/* 💡 修正：ヘッダーを横いっぱいに使い、ボタンを右端に寄せる */
+.dash-header {
+  display: flex; justify-content: center; align-items: center; position: relative;
+  margin-bottom: 1.5rem; flex-shrink: 0; width: 100%;
 }
 
-/* --- 月選択 --- */
-.month-selector {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 0px; 
-  flex-shrink: 0; 
+.month-selector-group {
+  display: flex; align-items: center; gap: 1.5rem;
 }
 
 .month-title {
-  font-family: var(--font-family-retro);
-  font-size: 1.4rem;
-  margin: 0;
+  font-size: clamp(1.2rem, 3vh, 1.5rem); font-weight: 600; margin: 0;
+  letter-spacing: 0.1em; color: var(--text-main);
 }
 
-.font-retro { font-family: var(--font-family-retro); }
-
-/* --- 1. 負荷値カードエリア --- */
-.summary-section { 
-  display: flex;
-  /* ★大変更: このエリアは絶対に縮ませず、中身のサイズをキープします！ */
-  flex: 0 0 auto; 
+/* 💡 修正：サイドパネル表示ボタンの絶対配置 */
+.toggle-schedule-btn {
+  position: absolute; right: 0;
+  padding: 0.5rem 1rem; background: var(--form-bg);
+  border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+  font-size: 0.85rem; color: var(--text-sub); cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+}
+.toggle-schedule-btn.active {
+  color: var(--accent-color); background: #FFF4E5; border-color: var(--accent-color);
 }
 
-.load-value-card-compact {
-  flex: 1; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center; 
-  background-color: #FFFFFF;
-  border: 4px solid var(--border-color);
-  padding: 15px;
-  text-align: center;
-  box-shadow: 4px 4px 0 var(--border-color);
-  box-sizing: border-box;
+.dash-grid-container {
+  display: flex; gap: 1.5rem; flex: 1; min-height: 0; width: 100%;
 }
 
-.load-label {
-  font-family: var(--font-family-retro);
-  font-weight: bold;
-  color: var(--accent-color);
-  display: block;
-  font-size: 0.85rem;
+.dash-left-panel {
+  flex: 1.8; display: flex; flex-direction: column; gap: 1.5rem; min-height: 0;
 }
 
-.load-value-card-compact .main-value {
-  font-size: clamp(1.8rem, 4vw, 2.8rem); 
-  font-weight: bold;
-  font-family: var(--font-family-retro);
-  line-height: 1.1;
-  margin: 10px 0; 
+/* --- モダンカード共通 --- */
+.modern-card {
+  background: var(--form-bg); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft); display: flex; flex-direction: column;
+  box-sizing: border-box; border: 1px solid var(--border-light);
+  container-type: size; padding: clamp(0.8rem, 3cqh, 1.5rem);
 }
 
-.load-status-bar {
-  margin-top: 2px;
-  font-family: var(--font-family-retro);
-  font-size: 0.75rem;
-  font-weight: bold;
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: auto; }
+.card-title { font-weight: 600; color: var(--text-sub); font-size: clamp(0.9rem, 6cqh, 1.1rem); }
+
+/* --- 💡 修正：Load Score (負荷スコア) の配置 --- */
+.load-card { flex: 0.45; min-height: 110px; display: flex; flex-direction: column; }
+.load-card .main-value {
+  text-align: center; font-weight: 700; color: var(--text-main);
+  font-size: clamp(1.8rem, min(6cqw, 25cqh), 3rem); 
+  margin: auto 0; line-height: 1;
 }
 
-.status-text.safe { color: var(--checkbox-accent); }
-.status-text.alert { color: #e74c3c; animation: blink 1.5s infinite; }
+.status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+.status-dot.safe { background: var(--green-soft); }
+.status-dot.alert { background: var(--accent-color); }
 
-/* --- 2 & 3. 統計カードエリア（グリッド） --- */
-.stats-horizontal-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 15px;
-  /* ★大変更: 1のエリアが使った残りの高さをすべて使い、画面が低ければ縮みます！ */
-  flex: 1; 
-  min-height: 0; /* 縮むことを許可するストッパー解除 */
+/* --- 統計グリッド --- */
+.stats-2x2 {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 1.5rem; flex: 1.8; min-height: 0;
 }
 
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; 
+.val-grid { display: flex; gap: 1rem; margin: auto 0; }
+.v-num { font-weight: 700; font-size: clamp(1.1rem, min(8cqw, 20cqh), 1.8rem); color: var(--text-main); }
+.v-lbl { font-size: clamp(0.75rem, 5cqh, 0.85rem); color: var(--text-sub); }
+
+/* --- プログレスバー --- */
+.progress-wrapper { margin-top: auto; padding-top: clamp(6px, 2cqh, 12px); }
+.prog-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; }
+.prog-bg { height: 8px; background: var(--bg-color); border-radius: 99px; position: relative; overflow: hidden; }
+.prog-bar { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+
+.bg-blue { background: var(--blue-soft); }
+.bg-green { background: var(--green-soft); }
+
+/* --- プログレスバーの中身の色 --- */
+
+/* 負荷スコア用（Load Score） */
+.bar-safe { background: var(--green-soft); }
+.bar-alert { background: var(--accent-color); }
+
+/* 売上・粗利・累計用（統計カード） */
+.bg-blue { background: var(--blue-soft); }
+.bg-green { background: var(--green-soft); }
+
+/* 共通設定（アニメーションをスムーズにする） */
+.prog-bar {
   height: 100%;
-  background-color: white;
-  padding: 10px 15px;
-  border: 4px solid var(--border-color);
-  box-shadow: 4px 4px 0 var(--border-color);
-  border-top-width: 8px;
-  box-sizing: border-box; 
-  
-  /* ★変更: カード自体も潰れることを許可し、文字のはみ出しは隠します */
-  min-height: 0; 
-  overflow: hidden; 
-}
-
-.stat-card.sales { border-top-color: #3498db; }
-.stat-card.profit { border-top-color: var(--checkbox-accent); }
-
-.stat-card-label {
-  font-family: var(--font-family-retro);
-  font-weight: bold;
-  font-size: 0.85rem;
-  display: block;
-  margin-bottom: 5px;
-  border-bottom: 1px dashed #ddd;
-}
-
-.values-comparison {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.value-block { flex: 1; }
-
-.block-label {
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: #888;
-  font-family: var(--font-family-retro);
-}
-
-.stat-card .main-value {
-  font-size: clamp(1.1rem, 2vw, 1.5rem); 
-  font-weight: 800;
-  font-family: var(--font-family-retro);
-  white-space: nowrap;
-}
-
-/* --- プログレスバー関連 --- */
-.retro-progress-container {
-  border-top: 1px solid #eee;
-  padding-top: 5px;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  font-family: var(--font-family-retro);
-  margin-bottom: 3px;
-}
-
-.remaining-text { color: #c0392b; font-weight: bold; }
-.percent-tag { color: var(--border-color); font-weight: bold; }
-
-.retro-progress-bg {
-  height: 10px;
-  background-color: var(--bg-color);
-  border: 2px solid var(--border-color);
-  position: relative;
-}
-
-.retro-progress-bar { 
-  height: 100%; 
-  transition: width 0.6s ease-out; 
-}
-
-.stat-card.sales .retro-progress-bar { background-color: #3498db; }
-.stat-card.profit .retro-progress-bar { background-color: var(--checkbox-accent); }
-
-.period-bg-bar {
-  position: absolute;
-  top: 0; left: 0;
-  opacity: 0.3; 
-  z-index: 1;
-}
-
-.current-fg-bar {
-  position: absolute;
-  top: 0; left: 0;
-  z-index: 2;
-  border-right: 2px solid var(--border-color); 
-}
-
-/* =========================================
-   中央リサイズハンドル
-   ========================================= */
-.resizer-handle {
-  width: 12px;
-  cursor: col-resize;
-  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-  background-size: 4px 4px;
-  border-left: 2px solid var(--border-color);
-  border-right: 2px solid var(--border-color);
-  margin: 0 5px;
-  background-color: rgba(0,0,0,0.02);
-  transition: background-color 0.2s;
-  flex-shrink: 0; 
-}
-
-.resizer-handle:hover {
-  background-color: var(--accent-color);
-}
-
-/* =========================================
-   右エリア（案件スケジュール）
-   ========================================= */
-.dashboard-right-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 250px;
-  height: 100%; 
-}
-
-.upcoming-section-fixed {
-  flex: 1;
-  background-color: white;
-  border: 4px solid var(--border-color);
-  box-shadow: 6px 6px 0 var(--border-color);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.section-title {
-  font-family: var(--font-family-retro);
-  margin: 0;
-  padding: 1rem;
-  border-bottom: 3px solid var(--bg-color);
-  font-size: 1.1rem;
-  flex-shrink: 0; 
-}
-
-.table-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 1rem 1rem 1rem;
-}
-
-.table-scroll-area::-webkit-scrollbar { width: 10px; }
-.table-scroll-area::-webkit-scrollbar-track { background: var(--bg-color); }
-.table-scroll-area::-webkit-scrollbar-thumb { background: var(--border-color); border: 2px solid var(--bg-color); }
-
-.mini-table { width: 100%; border-collapse: collapse; }
-.mini-table th {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #fff;
-  padding: 10px;
-  text-align: left;
-  border-bottom: 3px solid var(--border-color);
-  font-size: 0.8rem;
-}
-.mini-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; }
-
-.sub-text { font-size: 0.75rem; color: #888; }
-.status-badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: bold;
-}
-.status-badge.送付済, .status-badge.完了 { background: #27ae60; color: white; }
-.status-badge.着手 { background: #f1c40f; }
-.row-completed td { color: #bbb !important; }
-
-/* =========================================
-   アニメーション
-   ========================================= */
-@keyframes fadeIn { 
-  from { opacity: 0; transform: translateY(5px); } 
-  to { opacity: 1; transform: translateY(0); } 
-}
-@keyframes blink { 
-  50% { opacity: 0.4; } 
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }

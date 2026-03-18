@@ -16,7 +16,7 @@ pub async fn open_registration_window(app: AppHandle) -> Result<(), String> {
         WebviewUrl::App("/client-registration".into()) // Reactのルーティングのパスを指定
     )
     .title("取引先マスタ登録")
-    .inner_size(800.0, 800.0)
+    .inner_size(800.0, 900.0)
     .resizable(true)
     .build()
     .map_err(|e| e.to_string())?;
@@ -41,7 +41,7 @@ pub async fn open_edit_window(app: AppHandle) -> Result<(), String> {
     )
     .title("取引先マスタ更新")
     // 検索枠などを開くことを考えて、少し高さを大きめにしてもいいかもしれませんね
-    .inner_size(800.0, 800.0) 
+    .inner_size(800.0, 900.0) 
     .resizable(true)
     .build()
     .map_err(|e| e.to_string())?;
@@ -104,7 +104,7 @@ pub async fn open_history_log_registration_window(handle: tauri::AppHandle, id: 
         tauri::WebviewUrl::App(url.into())
     )
     .title("履歴の登録")
-    .inner_size(600.0, 700.0) // 💡 ここでサイズを指定
+    .inner_size(750.0, 900.0) // 💡 ここでサイズを指定
     .resizable(false)         // レイアウトを崩さないために固定にするのがおすすめ
     .always_on_top(true)      // 親画面に隠れないように
     .build()

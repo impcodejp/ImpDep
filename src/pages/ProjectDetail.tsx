@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
@@ -10,7 +10,6 @@ interface ProjectDetailData {
   id: number;
   projectName: string;
   clientName: string;
-  // 💡 金額は string で受け取る
   salesAmount: string;
   grossProfitAmount: string;
   currentScheduledDate: string;
@@ -99,12 +98,10 @@ export default function ProjectDetail() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // 💡 金額は丸め誤差を防ぐため文字列のまま保持する
     if (name === "salesAmount" || name === "grossProfitAmount") {
       setEditData(prev => ({ ...prev, [name]: value }));
       return;
     }
-    // その他の数値入力は数値として保持
     const val = e.target.type === "number" ? parseFloat(value) : value;
     setEditData(prev => ({ ...prev, [name]: val }));
   };
@@ -131,7 +128,6 @@ export default function ProjectDetail() {
       await invoke("update_project_details", {
         id: Number(id),
         projectName: editData.projectName,
-        // 💡 Rustに文字列として安全に送る
         salesAmount: String(editData.salesAmount || "0"),
         grossProfitAmount: String(editData.grossProfitAmount || "0"),
         status: editData.status,
@@ -161,165 +157,169 @@ export default function ProjectDetail() {
   };
 
   if (loading || !project) {
-    return <main className="main-container"><div className="message-box">LOADING...</div></main>;
+    // 💡 修正：ローディング中も古い枠組みを出さないように変更
+    return (
+      <div className="detail-full-screen" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: 'var(--text-sub)', fontWeight: 600 }}>LOADING...</div>
+      </div>
+    );
   }
 
   return (
-    <main className="main-container">
-      <div className="tab-content detail-full-screen">
-        <header className="detail-header-full">
-          <div className="title-area">
-            <h1 className="project-title-display">{project.projectName}</h1>
-            <div className="client-info-banner">
-              <span className="label">CLIENT:</span>
-              <span className="value">{project.clientName}</span>
-            </div>
+    /* 💡 修正：古い main-container と tab-content を削除し、いきなり detail-full-screen をルートに */
+    <div className="detail-full-screen">
+      <header className="detail-header-full">
+        <div className="title-area">
+          <h1 className="project-title-display">{project.projectName}</h1>
+          <div className="client-info-banner">
+            <span className="label">CLIENT:</span>
+            <span className="value">{project.clientName}</span>
           </div>
-          <div className="header-actions">
-            <button className="retro-btn secondary" onClick={handleBack}>BACK</button>
-          </div>
-        </header>
-
-        <div className="detail-grid-layout">
-          {/* 左側：メイン編集フォーム */}
-          <section className="main-edit-pane">
-            <h2 className="edit-form-title">PROJECT INFORMATION</h2>
-            
-            <div className="form-group">
-              <label className="form-label">プロジェクト名称</label>
-              <input name="projectName" className="form-input" type="text" value={editData.projectName || ""} onChange={handleChange} />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group flex-1">
-                <label className="form-label">ステータス</label>
-                <select
-                  name="status"
-                  className="form-input status-select"
-                  value={editData.status || ""}
-                  onChange={handleChange}
-                  style={{
-                    borderColor: editData.status === "完了" ? "#2ecc71" : "var(--border-color)",
-                    fontWeight: editData.status === "完了" ? "bold" : "normal"
-                  }}
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group flex-1">
-                <label className="form-label">ルートタイプ</label>
-                <select name="rootType" className="form-input" value={editData.rootType || "N"} onChange={handleChange}>
-                  {ROOT_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group flex-1">
-                <label className="form-label">売上金額 (JPY)</label>
-                {/* 💡 valueは文字列のままバインドする */}
-                <input name="salesAmount" className="form-input" type="number" value={editData.salesAmount ?? "0"} onChange={handleChange} />
-              </div>
-              <div className="form-group flex-1">
-                <label className="form-label">粗利金額 (JPY)</label>
-                <input name="grossProfitAmount" className="form-input" type="number" value={editData.grossProfitAmount ?? "0"} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group flex-1">
-                <label className="form-label">計上負担割合 (%)</label>
-                <input 
-                  name="burdenRatio" 
-                  className="form-input" 
-                  type="number" 
-                  step="0.1" 
-                  max="100"
-                  min="0"
-                  value={editData.burdenRatio ?? 0} 
-                  onChange={handleChange} 
-                />
-              </div>
-              <div className="form-group flex-1">
-                <label className="form-label">負荷値 (LOAD SCORE)</label>
-                <input name="loadValue" className="form-input" type="number" step="0.1" value={editData.loadValue ?? 0} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group flex-1">
-                <label className="form-label">割振日 (LOAD基準日)</label>
-                <input name="assignedDate" className="form-input" type="date" value={editData.assignedDate || ""} onChange={handleChange} />
-              </div>
-              <div className="form-group flex-1"></div>
-            </div>
-
-            <div className="action-footer">
-              <button className="submit-button save-btn" onClick={handleSave}>UPDATE / 変更保存</button>
-              <button className="retro-btn secondary delete-btn" onClick={handleDelete}>DELETE / 案件削除</button>
-            </div>
-          </section>
-
-          {/* 右側：履歴と日付サマリー */}
-          <aside className="side-info-pane">
-            <div className="date-summary-card">
-              <h3 className="side-title">SCHEDULE</h3>
-              <div className="date-item">
-                <label>現在の計上予定日</label>
-                <p className="date-val highlight">{project.currentScheduledDate}</p>
-              </div>
-              {project.completedDate && (
-                <div className="date-item completed-box">
-                  <label>完了確定日</label>
-                  <p className="date-val">{project.completedDate}</p>
-                </div>
-              )}
-              <div className="date-item">
-                <label>当初計上予定日</label>
-                <p className="date-val">{project.originalScheduledDate || "---"}</p>
-              </div>
-            </div>
-
-            <div className="history-log-area">
-              <div className="side-title-header">
-                <h3 className="side-title">HISTORY LOG</h3>
-                <button className="retro-btn secondary history-add-btn" onClick={() => openHistoryLogRegistration(project.id)}>
-                  + 履歴登録
-                </button>
-              </div>
-              
-              <div className="history-scroll">
-                {histories.length === 0 ? (
-                  <p className="no-history">履歴なし</p>
-                ) : (
-                  histories.map((h) => (
-                    <div key={h.id} className="history-card">
-                      <div className="history-meta">
-                        <span className="h-date">{new Date(h.changedAt).toLocaleDateString()}</span>
-                        <span className="h-label">{h.oldDate !== h.newDate ? "変更" : "コメント"}</span>
-                      </div>
-                      <div className="h-flow">
-                        {h.oldDate !== h.newDate && (
-                          <div>
-                            <span className="old">{h.oldDate || "始"}</span>
-                            <span className="arrow">→</span>
-                            <span className="new">{h.newDate}</span>
-                          </div>
-                        )}
-                      </div>
-                      {h.changeReason && <div className="h-reason">{h.changeReason}</div>}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </aside>
         </div>
+        <div className="header-actions">
+          <button className="retro-btn secondary" onClick={handleBack}>BACK</button>
+        </div>
+      </header>
+
+      <div className="detail-grid-layout">
+        {/* 左側：メイン編集フォーム */}
+        <section className="main-edit-pane">
+          <h2 className="edit-form-title">PROJECT INFORMATION</h2>
+          
+          <div className="form-group">
+            <label className="form-label">プロジェクト名称</label>
+            <input name="projectName" className="form-input" type="text" value={editData.projectName || ""} onChange={handleChange} />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label className="form-label">ステータス</label>
+              <select
+                name="status"
+                className="form-input status-select"
+                value={editData.status || ""}
+                onChange={handleChange}
+                style={{
+                  borderColor: editData.status === "完了" ? "var(--green-soft)" : "var(--border-light)",
+                  fontWeight: editData.status === "完了" ? "600" : "400",
+                  backgroundColor: editData.status === "完了" ? "#F6FFF8" : "var(--bg-color)"
+                }}
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group flex-1">
+              <label className="form-label">ルートタイプ</label>
+              <select name="rootType" className="form-input" value={editData.rootType || "N"} onChange={handleChange}>
+                {ROOT_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label className="form-label">売上金額 (JPY)</label>
+              <input name="salesAmount" className="form-input" type="number" value={editData.salesAmount ?? "0"} onChange={handleChange} />
+            </div>
+            <div className="form-group flex-1">
+              <label className="form-label">粗利金額 (JPY)</label>
+              <input name="grossProfitAmount" className="form-input" type="number" value={editData.grossProfitAmount ?? "0"} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label className="form-label">計上負担割合 (%)</label>
+              <input 
+                name="burdenRatio" 
+                className="form-input" 
+                type="number" 
+                step="0.1" 
+                max="100"
+                min="0"
+                value={editData.burdenRatio ?? 0} 
+                onChange={handleChange} 
+              />
+            </div>
+            <div className="form-group flex-1">
+              <label className="form-label">負荷値 (LOAD SCORE)</label>
+              <input name="loadValue" className="form-input" type="number" step="0.1" value={editData.loadValue ?? 0} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group flex-1">
+              <label className="form-label">割振日 (LOAD基準日)</label>
+              <input name="assignedDate" className="form-input" type="date" value={editData.assignedDate || ""} onChange={handleChange} />
+            </div>
+            <div className="form-group flex-1"></div>
+          </div>
+
+          <div className="action-footer">
+            <button className="submit-button save-btn" onClick={handleSave}>UPDATE / 変更保存</button>
+            <button className="retro-btn secondary delete-btn" onClick={handleDelete}>DELETE / 案件削除</button>
+          </div>
+        </section>
+
+        {/* 右側：履歴と日付サマリー */}
+        <aside className="side-info-pane">
+          <div className="date-summary-card">
+            <h3 className="side-title">SCHEDULE</h3>
+            <div className="date-item">
+              <label>現在の計上予定日</label>
+              <p className="date-val highlight">{project.currentScheduledDate}</p>
+            </div>
+            {project.completedDate && (
+              <div className="date-item completed-box">
+                <label>完了確定日</label>
+                <p className="date-val">{project.completedDate}</p>
+              </div>
+            )}
+            <div className="date-item">
+              <label>当初計上予定日</label>
+              <p className="date-val">{project.originalScheduledDate || "---"}</p>
+            </div>
+          </div>
+
+          <div className="history-log-area">
+            <div className="side-title-header">
+              <h3 className="side-title">HISTORY LOG</h3>
+              <button className="retro-btn secondary history-add-btn" onClick={() => openHistoryLogRegistration(project.id)}>
+                + 履歴登録
+              </button>
+            </div>
+            
+            <div className="history-scroll">
+              {histories.length === 0 ? (
+                <p className="no-history">履歴なし</p>
+              ) : (
+                histories.map((h) => (
+                  <div key={h.id} className="history-card">
+                    <div className="history-meta">
+                      <span className="h-date">{new Date(h.changedAt).toLocaleDateString()}</span>
+                      <span className="h-label">{h.oldDate !== h.newDate ? "変更" : "コメント"}</span>
+                    </div>
+                    <div className="h-flow">
+                      {h.oldDate !== h.newDate && (
+                        <div>
+                          <span className="old">{h.oldDate || "始"}</span>
+                          <span className="arrow">→</span>
+                          <span className="new">{h.newDate}</span>
+                        </div>
+                      )}
+                    </div>
+                    {h.changeReason && <div className="h-reason">{h.changeReason}</div>}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </aside>
       </div>
-    </main>
+    </div>
   );
 }

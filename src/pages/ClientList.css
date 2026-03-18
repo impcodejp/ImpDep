@@ -1,0 +1,131 @@
+/* src/pages/ClientList.css */
+
+/* =========================================
+   タブ内のメインレイアウト
+   ========================================= */
+.client-list-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem 2.5rem; /* MenuやDashboardと余白を統一 */
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* --- ヘッダー部分 --- */
+.list-tab-header {
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+.list-tab-title {
+  font-size: clamp(1.2rem, 3vh, 1.5rem);
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.1em;
+  color: var(--text-main);
+}
+
+.list-tab-note {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* =========================================
+   リスト表示エリア（カード風のテーブルコンテナ）
+   ========================================= */
+.list-table-container {
+  flex: 1;
+  background-color: var(--form-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-soft);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* スクロールバー装飾 */
+.list-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+.list-table-container::-webkit-scrollbar-track { background: transparent; }
+.list-table-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 4px; }
+
+/* --- テーブル本体 --- */
+.modern-list-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 600px;
+}
+
+/* テーブルヘッダー */
+.modern-list-table th {
+  position: sticky;
+  top: 0;
+  background-color: #F8F8F8;
+  padding: 1rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* テーブルセル */
+.modern-list-table td {
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid #F5F5F5;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.modern-list-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 行のホバー（クリックできる感） */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clickable-row:hover td {
+  background-color: #E3F2FD; /* 爽やかな選択カラー */
+}
+
+/* --- 各カラムの幅調整 --- */
+.col-code { width: 15%; }
+.col-name { width: 45%; }
+.col-system { width: 40%; }
+
+.code-text {
+  font-family: var(--font-family-retro);
+  font-weight: 500;
+  color: var(--text-sub);
+}
+
+/* --- システムバッジの装飾 --- */
+.sys-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sys-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.badge-gali { background-color: #E3F2FD; color: #1565C0; }
+.badge-ml { background-color: #E8F5E9; color: #2E7D32; }
+.badge-xro { background-color: #FFF3E0; color: #E65100; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

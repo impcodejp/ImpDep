@@ -1,85 +1,266 @@
 /* src/pages/ProjectList.css */
 
-.project-list-container {
-  padding: 20px;
-  background-color: #ffffff;
+/* =========================================
+   タブ内のメインレイアウト
+   ========================================= */
+.project-list-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
 }
 
-.list-title {
-  font-size: 1.4rem;
-  color: #333;
+/* --- ヘッダー部分 --- */
+.list-tab-header {
   margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.list-tab-title {
+  font-size: clamp(1.2rem, 3vh, 1.5rem);
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.1em;
+  color: var(--text-main);
+}
+
+.list-tab-note {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* =========================================
+   フィルター（検索）パネル
+   ========================================= */
+.filter-panel {
+  border: 1px solid #DCDCDC;
+  padding: 1rem 1.5rem;
+  margin: 0 0 1.2rem 0;
+  border-radius: 4px;
+  background-color: #FAFAFA;
+  flex-shrink: 0;
+}
+
+.filter-panel legend {
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.filter-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+/* ネイティブ風の小さな入力欄 */
+.filter-input {
+  width: auto;
+  min-width: 160px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #C0C0C0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: #FFF;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+/* 期間指定レイアウト */
+.date-range-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.range-tilde {
+  color: #888;
   font-weight: bold;
 }
 
-/* テーブル全体のレイアウト固定 */
-.project-table {
+/* チェックボックス横並び */
+.status-filter-group {
   width: 100%;
-  border-collapse: collapse; /* 💡 境界線を1本にする */
-  table-layout: fixed;      /* 💡 列幅を固定してガタつきを防ぐ */
-  border: 1px solid #ccc;
-  font-family: sans-serif;
+}
+.checkbox-wrap-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: center;
+  padding-top: 4px;
+}
+.filter-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+.filter-checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+  margin: 0;
 }
 
-/* ヘッダー：背景を少し濃くして境界を強調 */
-.project-table th {
-  background-color: #f2f2f2;
-  border: 1px solid #ccc;    /* 💡 縦横に罫線を入れる */
-  padding: 10px 8px;
-  font-size: 0.9rem;
-  color: #444;
-  text-align: center;
+/* =========================================
+   リスト表示エリア（カード風のテーブルコンテナ）
+   ========================================= */
+.list-table-container {
+  flex: 1;
+  background-color: var(--form-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-soft);
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
-/* 各セルの罫線とパディング */
-.project-table td {
-  border: 1px solid #ddd;    /* 💡 薄めのグレーで格子状にする */
-  padding: 8px;
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;   /* 💡 はみ出た文字を「...」にする */
+.list-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+.list-table-container::-webkit-scrollbar-track { background: transparent; }
+.list-table-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 4px; }
+
+/* --- テーブル本体 --- */
+.modern-list-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 900px; /* 列が増えたので少し拡張 */
+}
+
+.modern-list-table th {
+  position: sticky;
+  top: 0;
+  background-color: #F8F8F8;
+  padding: 0.8rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  z-index: 2;
   white-space: nowrap;
 }
 
-/* --- 💡 列幅の調整（お好みで％を調整してください） --- */
-.col-date   { width: 100px; }
-.col-name   { width: 250px; }
-.col-client { width: 180px; }
-.col-amount { width: 120px; }
-.col-ratio  { width: 70px;  }
-.col-load   { width: 60px;  }
-.col-status { width: 90px;  }
-
-/* 1行おきに背景色を変える（ゼブラ柄） */
-.project-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
+.modern-list-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #F5F5F5;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  vertical-align: middle;
 }
 
-/* ホバー時は少し強調 */
-.project-table tbody tr:hover {
-  background-color: #f0f7ff !important;
-}
+.modern-list-table tr:last-child td { border-bottom: none; }
 
-/* 数値用：桁が揃うように等幅フォントを指定 */
-.text-right {
-  text-align: right;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  padding-right: 12px !important;
-}
+.clickable-row { cursor: pointer; transition: background-color 0.15s; }
+.clickable-row:hover td { background-color: #E3F2FD; }
 
-.text-center {
-  text-align: center;
-}
+/* --- カラムの幅調整 --- */
+.col-date   { width: 10%; }
+.col-root   { width: 7%; }  /* 💡 新規追加 */
+.col-p-name { width: 28%; }
+.col-c-name { width: 20%; }
+.col-money  { width: 12%; }
+.col-status { width: 11%; }
 
-/* ステータスバッジの調整 */
-.status-badge {
+/* --- セル内の文字装飾 --- */
+.date-text { font-family: var(--font-family-retro); color: #666; font-size: 0.85rem; }
+.bold-text { font-weight: 600; color: var(--text-main); }
+.money-text { font-family: var(--font-family-retro); font-weight: 500; font-variant-numeric: tabular-nums; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+.no-data { text-align: center; color: var(--text-sub); padding: 3rem !important; }
+
+/* --- バッジ装飾 --- */
+
+/* 💡 ルート区分のバッジ */
+.root-badge {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   border: 1px solid transparent;
 }
+.badge-new { background-color: #FFF4E5; color: #E65100; border-color: #FFE0B2; } /* 新規：オレンジ系 */
+.badge-add { background-color: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; } /* 追加：グリーン系 */
 
-.status-badge.割振済 { background-color: #e3f2fd; color: #1976d2; border-color: #bbdefb; }
-.status-badge.進行中 { background-color: #fff3e0; color: #f57c00; border-color: #ffe0b2; }
-.status-badge.完了   { background-color: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+
+/* ステータスバッジ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+.status-badge[data-status="割振済"] { background-color: #F5F5F5; color: #666; border-color: #E0E0E0; }
+.status-badge[data-status="着手"] { background-color: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
+.status-badge[data-status="検収合意"] { background-color: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
+.status-badge[data-status="送付済"] { background-color: #F3E5F5; color: #7B1FA2; border-color: #E1BEE7; }
+.status-badge[data-status="完了"] { background-color: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   ソート機能（並び替え）の追加スタイル
+   ========================================= */
+
+/* クリック可能なヘッダーの装飾 */
+.modern-list-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+/* ホバー時に色を少し変えて「押せる」ことをアピール */
+.modern-list-table th.sortable:hover {
+  background-color: #E8E8E8;
+}
+
+/* 昇順・降順の矢印アイコン */
+.sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  vertical-align: middle;
+}
+
+/* アイコンがない状態でも横幅を確保してガタつきを防ぐための透明な枠 */
+.sort-icon-placeholder {
+  display: inline-block;
+  width: 12px;
+  margin-left: 4px;
+}

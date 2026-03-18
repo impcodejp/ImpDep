@@ -1,0 +1,2 @@
+
+ALTER TABLE todo ADD COLUMN weight_label VARCHAR(10) NOT NULL;
