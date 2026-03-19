@@ -1,14 +1,20 @@
+/* src\components\Dashboard.css */
+
 /* --- レイアウトの根幹 --- */
 .dash-root {
   display: flex; flex-direction: column; height: 100%; width: 100%;
   padding: 1.5rem 2.5rem 2.5rem; box-sizing: border-box; overflow: hidden;
+  position: relative; /* 💡 トグルボタン絶対配置の基準 */
   animation: fadeIn 0.4s ease-out;
 }
 
-/* 💡 修正：ヘッダーを横いっぱいに使い、ボタンを右端に寄せる */
-.dash-header {
-  display: flex; justify-content: center; align-items: center; position: relative;
-  margin-bottom: 1.5rem; flex-shrink: 0; width: 100%;
+/* --- メインパネルの内側ヘッダー（月選択エリア） --- */
+.main-panel-header {
+  display: flex; 
+  align-items: center; 
+  justify-content: center; /* 💡 月選択を中央に配置 */
+  height: 40px; 
+  margin-bottom: 1.5rem;
 }
 
 .month-selector-group {
@@ -20,20 +26,26 @@
   letter-spacing: 0.1em; color: var(--text-main);
 }
 
-/* 💡 修正：サイドパネル表示ボタンの絶対配置 */
+/* --- トグルボタン（スケジュール表示/非表示） --- */
 .toggle-schedule-btn {
-  position: absolute; right: 0;
+  position: absolute; 
+  top: 1.5rem; /* dash-rootのpadding-topと合わせる */
+  right: 2.5rem; /* dash-rootのpadding-rightと合わせる */
+  z-index: 10;
   padding: 0.5rem 1rem; background: var(--form-bg);
   border: 1px solid var(--border-light); border-radius: var(--radius-sm);
   font-size: 0.85rem; color: var(--text-sub); cursor: pointer;
   display: flex; align-items: center; gap: 6px;
 }
+
 .toggle-schedule-btn.active {
   color: var(--accent-color); background: #FFF4E5; border-color: var(--accent-color);
 }
 
+/* --- メインとサイドを並べるコンテナ --- */
 .dash-grid-container {
   display: flex; gap: 1.5rem; flex: 1; min-height: 0; width: 100%;
+  margin-top: 3rem; /* 💡 オンオフボタンの高さ分だけ全体を下に下げる */
 }
 
 .dash-left-panel {
@@ -51,17 +63,13 @@
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: auto; }
 .card-title { font-weight: 600; color: var(--text-sub); font-size: clamp(0.9rem, 6cqh, 1.1rem); }
 
-/* --- 💡 修正：Load Score (負荷スコア) の配置 --- */
+/* --- Load Score (負荷スコア) --- */
 .load-card { flex: 0.45; min-height: 110px; display: flex; flex-direction: column; }
 .load-card .main-value {
   text-align: center; font-weight: 700; color: var(--text-main);
   font-size: clamp(1.8rem, min(6cqw, 25cqh), 3rem); 
   margin: auto 0; line-height: 1;
 }
-
-.status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
-.status-dot.safe { background: var(--green-soft); }
-.status-dot.alert { background: var(--accent-color); }
 
 /* --- 統計グリッド --- */
 .stats-2x2 {
@@ -73,16 +81,78 @@
 .v-num { font-weight: 700; font-size: clamp(1.1rem, min(8cqw, 20cqh), 1.8rem); color: var(--text-main); }
 .v-lbl { font-size: clamp(0.75rem, 5cqh, 0.85rem); color: var(--text-sub); }
 
+/* --- 💡 累計カードのグリッドレイアウト（新規粗利・粗利計上）最新版 --- */
+.budget-val-area {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr; /* 左(達成率)と右(実績・予算)の幅の比率 */
+  gap: 0 16px; /* 横の隙間だけ空ける */
+  margin: auto 0;
+}
+
+/* 左側：達成率（縦に2行分ぶち抜き、上下中央揃え） */
+.achievement-rate {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3; /* 1行目から2行目まで結合して高さを揃えます */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border-light); /* 右側に薄い線を引いて区切ります */
+  padding-right: 16px;
+}
+
+/* 右側：実績と予算の共通設定（ラベル左、数値を右にキレイに配置） */
+.actual-box, .budget-box {
+  grid-column: 2 / 3;
+  display: flex;
+  justify-content: space-between; /* ラベルと数値を左右に振り分け */
+  align-items: center;
+}
+
+/* 右側上段：実績 */
+.actual-box {
+  grid-row: 1 / 2;
+  border-bottom: 1px dashed var(--border-light); /* 実績と予算の間に点線 */
+  padding-bottom: 8px;
+}
+
+/* 右側下段：予算 */
+.budget-box {
+  grid-row: 2 / 3;
+  padding-top: 8px;
+}
+
+/* --- 累計カード内の文字装飾 --- */
+.rate-num {
+  font-weight: 700;
+  font-size: clamp(1.6rem, 10cqw, 2.2rem); /* 達成率を少し目立たせます */
+  color: var(--text-main);
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.percent-mark {
+  font-size: 1.1rem;
+  margin-left: 2px;
+  color: var(--text-sub);
+}
+
+.fraction-num {
+  font-weight: 700;
+  font-size: clamp(1.1rem, 6cqw, 1.4rem);
+  color: var(--text-main);
+}
+
 /* --- プログレスバー --- */
 .progress-wrapper { margin-top: auto; padding-top: clamp(6px, 2cqh, 12px); }
 .prog-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; }
 .prog-bg { height: 8px; background: var(--bg-color); border-radius: 99px; position: relative; overflow: hidden; }
-.prog-bar { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
 
-.bg-blue { background: var(--blue-soft); }
-.bg-green { background: var(--green-soft); }
-
-/* --- プログレスバーの中身の色 --- */
+/* 共通設定（アニメーションをスムーズにする） */
+.prog-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 /* 負荷スコア用（Load Score） */
 .bar-safe { background: var(--green-soft); }
@@ -91,10 +161,4 @@
 /* 売上・粗利・累計用（統計カード） */
 .bg-blue { background: var(--blue-soft); }
 .bg-green { background: var(--green-soft); }
-
-/* 共通設定（アニメーションをスムーズにする） */
-.prog-bar {
-  height: 100%;
-  border-radius: 99px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
+.op-30 { opacity: 0.3; }

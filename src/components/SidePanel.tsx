@@ -1,3 +1,5 @@
+// src\components\SidePanel.tsx
+
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./SidePanel.css";
@@ -116,7 +118,7 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
                 <tr key={p.id} className={p.status === '完了' ? 'completed' : ''} onDoubleClick={() => onDoubleClick(p.id)}>
                   <td className="date-col">{(p.currentScheduledDate || "").slice(5).replace('-', '/')}</td>
                   <td><div className="p-name">{p.projectName}</div><div className="p-client">{p.clientName}</div></td>
-                  <td style={{ textAlign: 'right' }} className="date-col">{(Number(p.salesAmount) / 10000).toFixed(1)}w</td>
+                  <td style={{ textAlign: 'right' }} className="date-col">{(Number(p.salesAmount) / 10000).toFixed(1)}万</td>
                   <td style={{ textAlign: 'center' }}><span className={`badge badge-${p.status === '完了' ? 'done' : 'active'}`}>{p.status}</span></td>
                 </tr>
               ))}
@@ -143,7 +145,6 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
               <ul className="todo-list">
                 {todos.map((todo) => (
                   <li key={todo.id} className={`todo-item clickable ${todo.endFlag ? 'done' : ''}`} onClick={() => handleTodoClick(todo)}>
-                    <div className="todo-check-area"><input type="checkbox" checked={todo.endFlag} readOnly /></div>
                     <div className="todo-main-content">
                       <div className="todo-title-row">
                         <span className="todo-title">{todo.title}</span>
@@ -152,7 +153,7 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
                     </div>
                     <div className="todo-date-area">
                       {/* 💡 ?. を使って undefined エラーを防止 */}
-                      <span className="todo-date">{todo.endDate?.replace(/-/g, '/') || '--/--'}</span>
+                      <span className="todo-date">{todo.endDate?.slice(5).replace('-', '/') || '--/--'}</span>
                     </div>
                   </li>
                 ))}
