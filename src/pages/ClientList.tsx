@@ -5,17 +5,17 @@ import "./ClientList.css";
 
 interface Client {
   id: number;
-  clientCode: string;
+  clientCode: number;
   clientName: string;
   usegali: boolean;
   useml: boolean;
   usexro: boolean;
+  myUser: boolean;
 }
 
 export default function ClientList() {
   const [clients, setClients] = useState<Client[]>([]);
 
-  // 画面が開いた時に全件取得する
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -29,7 +29,7 @@ export default function ClientList() {
   }, []);
 
   // 行をダブルクリックした時の処理
-  const handleRowDoubleClick = async (clientCode: string) => {
+  const handleRowDoubleClick = async (clientCode: number) => {
     try {
       await invoke("open_edit_window");
       setTimeout(async () => {
@@ -41,7 +41,6 @@ export default function ClientList() {
   };
 
   return (
-    /* 💡 MenuやDashboardと同じ、アプリ共通のメインコンテナ構造を使用 */
     <main className="main-container">
       <div className="tab-content client-list-tab">
         
@@ -50,13 +49,13 @@ export default function ClientList() {
           <p className="list-tab-note">※行をダブルクリックすると編集画面が開きます</p>
         </header>
 
-        {/* リストを表示するモダンなカード領域 */}
         <div className="list-table-container">
           <table className="modern-list-table">
             <thead>
               <tr>
                 <th className="col-code">コード</th>
                 <th className="col-name">取引先名</th>
+                <th className="col-status">担当</th>
                 <th className="col-system">利用システム</th>
               </tr>
             </thead>
@@ -69,6 +68,9 @@ export default function ClientList() {
                 >
                   <td className="col-code code-text">{c.clientCode}</td>
                   <td className="col-name">{c.clientName}</td>
+                  <td className="col-status">
+                    {c.myUser && <span className="my-user-icon" title="担当顧客">👤</span>}
+                  </td>
                   <td className="col-system">
                     <div className="sys-badges">
                       {c.usegali && <span className="sys-badge badge-gali">Galileopt</span>}

@@ -3,7 +3,6 @@ use crate::AppState; // lib.rsで定義したAppState
 use crate::models::client::{CreateClientInput, ClientResponse, UpdateClientInput};
 use crate::repositories::client_repository;
 
-// #[tauri::command] をつけることでReactから呼べるようになります
 #[tauri::command]
 pub async fn add_client(
     state: State<'_, AppState>,
@@ -21,7 +20,7 @@ pub async fn add_client(
 #[tauri::command]
 pub async fn get_client_by_code(
     state: State<'_, AppState>,
-    code: String,
+    code: i32,
 ) -> Result<ClientResponse, String> {
     client_repository::get_client_by_code(&state.db, code)
         .await

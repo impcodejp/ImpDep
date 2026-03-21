@@ -9,6 +9,7 @@ export default function ClientRegistration() {
     usegali: false,
     useml: false,
     usexro: false,
+    myUser: false,
   });
 
   const [message, setMessage] = useState<{ type: "success" | "error" | ""; text: string }>({
@@ -28,8 +29,15 @@ export default function ClientRegistration() {
     e.preventDefault();
     setMessage({ type: "", text: "" }); 
 
+    // 💡 エラー解決のための追加：ここで clientCode を数値に変換します！
+    const submitData = {
+      ...formData,
+      clientCode: Number(formData.clientCode)
+    };
+
     try {
-      await invoke("add_client", { payload: formData });
+      // 💡 formData ではなく、変換後の submitData を送ります
+      await invoke("add_client", { payload: submitData });
       setMessage({ type: "success", text: "データの登録が完了しました。" });
       setFormData({
         clientCode: "",
@@ -37,6 +45,7 @@ export default function ClientRegistration() {
         usegali: false,
         useml: false,
         usexro: false,
+        myUser: false,
       });
     } catch (error) {
       console.error(error);
@@ -61,11 +70,11 @@ export default function ClientRegistration() {
           <div className="form-group">
             <label className="form-label">取引先コード</label>
             <input
-              type="text"
+              type="number"
               name="clientCode"
               value={formData.clientCode}
               onChange={handleChange}
-              placeholder="例: C0001"
+              placeholder="例: 1"
               className="native-input"
               required
             />
@@ -82,6 +91,16 @@ export default function ClientRegistration() {
               className="native-input"
               required
             />
+          </div>
+
+          {/* 💡 マイユーザー用のチェックボックスを追加 */}
+          <div className="checkbox-group-modern">
+            <input
+              type="checkbox" id="reg-myUser" name="myUser"
+              className="checkbox-input"
+              checked={formData.myUser} onChange={handleChange}
+            />
+            <label htmlFor="reg-myUser" className="checkbox-label">担当顧客</label>
           </div>
 
           <div className="native-checkbox-area">

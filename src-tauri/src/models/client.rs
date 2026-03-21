@@ -4,11 +4,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateClientInput {
-    pub client_code: String,
+    pub client_code: i32,
     pub client_name: String,
     pub usegali: bool,
     pub useml: bool,
     pub usexro: bool,
+    pub my_user: bool
 }
 
 // 💡 更新時にReactから受け取る用（idが追加されています）
@@ -16,11 +17,12 @@ pub struct CreateClientInput {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateClientInput {
     pub id: i32,
-    pub client_code: String,
+    pub client_code: i32,
     pub client_name: String,
     pub usegali: bool,
     pub useml: bool,
     pub usexro: bool,
+    pub my_user: bool,
 }
 
 // 💡 取得時にReactへ返す用（Serialize を使います）
@@ -28,9 +30,10 @@ pub struct UpdateClientInput {
 #[serde(rename_all = "camelCase")]
 pub struct ClientResponse {
     pub id: i32,
-    pub client_code: String,
+    pub client_code: i32,
     pub client_name: String,
     pub usegali: bool,
     pub useml: bool,
     pub usexro: bool,
+    pub my_user: bool,
 }

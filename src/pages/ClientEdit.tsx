@@ -3,29 +3,32 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import "./ClientEdit.css";
 
+// 💡 1. 型定義をバックエンドに合わせて変更します
 interface Client {
   id: number;
-  clientCode: string;
+  clientCode: number; // string から number に変更
   clientName: string;
   usegali: boolean;
   useml: boolean;
   usexro: boolean;
+  myUser: boolean;   // 新しく追加
 }
 
 export default function ClientEditForm() {
-  const [inputCode, setInputCode] = useState("");
+  const [inputCode, setInputCode] = useState(""); // 入力欄用なので state は文字列のままでOKです
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [formData, setFormData] = useState<Client | null>(null);
 
-  const fetchClientData = async (targetCode: string) => {
+  const fetchClientData = async (targetCode: string | number) => {
     try {
-      const data = await invoke<Client>("get_client_by_code", { code: targetCode });
+      // 💡 2. 検索するときにコードを数値に変換して送ります
+      const data = await invoke<Client>("get_client_by_code", { code: Number(targetCode) });
       setFormData(data);
       setSearchResults([]);
       setIsSearching(false);
-      setInputCode(targetCode); 
+      setInputCode(String(targetCode)); // 入力欄の表示用
     } catch (error) {
       alert("指定された取引先コードが見つかりませんでした");
       setFormData(null);
@@ -35,7 +38,8 @@ export default function ClientEditForm() {
   const handleLoadClient = () => { if (inputCode) fetchClientData(inputCode); };
 
   useEffect(() => {
-    const unlisten = listen<{ code: string }>("load_client_for_edit", (event) => {
+    // 💡 バックエンドから送られてくる code も数値になっているかもしれないので柔軟に受け取ります
+    const unlisten = listen<{ code: string | number }>("load_client_for_edit", (event) => {
       if (event.payload && event.payload.code) fetchClientData(event.payload.code);
     });
     return () => { unlisten.then((f) => f()); };
@@ -53,7 +57,7 @@ export default function ClientEditForm() {
   };
 
   const handleSelectSearchResult = (client: Client) => {
-    setInputCode(client.clientCode);
+    setInputCode(String(client.clientCode)); // 数値を文字列にして入力欄にセット
     setFormData(client);
     setSearchResults([]);
     setIsSearching(false);
@@ -67,6 +71,7 @@ export default function ClientEditForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      // formData の中の clientCode はすでに数値になっているのでそのまま送れます
       await invoke("update_client", { payload: formData });
       alert("取引先の情報を更新しました。");
     } catch (error) {
@@ -86,13 +91,13 @@ export default function ClientEditForm() {
             <legend>対象取引先の指定</legend>
             <div className="search-inputs">
               <label className="form-label" style={{ marginBottom: "4px" }}>取引先コード</label>
-              {/* 💡 修正：固定幅をなくし flex-1 で広げる */}
               <div style={{ display: "flex", gap: "8px", alignItems: "center", width: "100%" }}>
                 <input
-                  type="text"
+                  type="number" // 💡 3. 数値しか入力できないように変更
                   className="native-input flex-1"
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value)}
+                  placeholder="例: 1001"
                 />
                 <button className="native-btn primary" onClick={handleLoadClient}>読込</button>
                 <button className="native-btn secondary" onClick={() => setIsSearching(!isSearching)}>
@@ -135,7 +140,7 @@ export default function ClientEditForm() {
                 <div className="form-group">
                   <label className="form-label">取引先コード (読取専用)</label>
                   <input
-                    type="text"
+                    type="number" // 💡 表示も数値用に変更
                     name="clientCode"
                     className="native-input readonly-input"
                     value={formData.clientCode}
@@ -153,6 +158,12 @@ export default function ClientEditForm() {
                     onChange={handleChange}
                     required
                   />
+                </div>
+
+                {/* 💡 修正ポイント： name="my_user" を name="myUser" に変更しました */}
+                <div className="checkbox-group-modern">
+                  <input type="checkbox" id="edit-my_user" name="myUser" className="checkbox-input" checked={formData.myUser} onChange={handleChange} />
+                  <label htmlFor="edit-my_user" className="checkbox-label">担当顧客</label>
                 </div>
                 
                 <div className="native-checkbox-area" style={{ marginTop: "1rem" }}>

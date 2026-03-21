@@ -97,14 +97,35 @@
 }
 
 /* --- 各カラムの幅調整 --- */
+/* 💡 担当カラムを追加した分、合計が100%になるように配分し直しました */
+.col-status { width: 8%; text-align: center; } /* アイコンなので中央寄せ */
 .col-code { width: 15%; }
-.col-name { width: 45%; }
+.col-name { width: 37%; }
 .col-system { width: 40%; }
+
+/* ヘッダーの「担当」も中央寄せにする */
+.modern-list-table th.col-status {
+  text-align: center;
+}
 
 .code-text {
   font-family: var(--font-family-retro);
   font-weight: 500;
   color: var(--text-sub);
+}
+
+/* --- 担当アイコンの装飾 --- */
+/* 💡 アクセントカラー（テラコッタ）に合わせた温かい背景をつけて丸くします */
+.my-user-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #FFF0E6;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(226, 125, 96, 0.15);
 }
 
 /* --- システムバッジの装飾 --- */

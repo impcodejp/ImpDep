@@ -6,14 +6,15 @@ pub async fn create_client(pool: &Pool<Postgres>, input: CreateClientInput) -> R
     // SQLを実行してデータを挿入します
     sqlx::query!(
         r#"
-        INSERT INTO clients (client_code, client_name, usegali, useml, usexro)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO clients (client_code, client_name, usegali, useml, usexro, my_user)
+        VALUES ($1, $2, $3, $4, $5, $6)
         "#,
         input.client_code,
         input.client_name,
         input.usegali,
         input.useml,
-        input.usexro
+        input.usexro,
+        input.my_user,
     )
     .execute(pool)
     .await?;
@@ -22,11 +23,11 @@ pub async fn create_client(pool: &Pool<Postgres>, input: CreateClientInput) -> R
 }
 
 // 取引先コードで完全に一致するものを1件取得する関数
-pub async fn get_client_by_code(pool: &PgPool, code: String) -> Result<ClientResponse, sqlx::Error> {
+pub async fn get_client_by_code(pool: &PgPool, code: i32) -> Result<ClientResponse, sqlx::Error> {
     let client = sqlx::query_as!(
         ClientResponse,
         r#"
-        SELECT id, client_code, client_name, usegali, useml, usexro
+        SELECT id, client_code, client_name, usegali, useml, usexro, my_user
         FROM clients
         WHERE client_code = $1
         "#,
@@ -43,15 +44,16 @@ pub async fn update_client(pool: &PgPool, input: UpdateClientInput) -> Result<()
     sqlx::query!(
         r#"
         UPDATE clients
-        SET client_code = $1, client_name = $2, usegali = $3, useml = $4, usexro = $5, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $6
+        SET client_code = $1, client_name = $2, usegali = $3, useml = $4, usexro = $5, updated_at = CURRENT_TIMESTAMP, my_user = $6
+        WHERE id = $7
         "#,
         input.client_code,
         input.client_name,
         input.usegali,
         input.useml,
         input.usexro,
-        input.id
+        input.my_user,
+        input.id,
     )
     .execute(pool)
     .await?;
@@ -66,7 +68,7 @@ pub async fn search_clients_by_name(pool: &PgPool, name: String) -> Result<Vec<C
     let clients = sqlx::query_as!(
         ClientResponse,
         r#"
-        SELECT id, client_code, client_name, usegali, useml, usexro
+        SELECT id, client_code, client_name, usegali, useml, usexro, my_user
         FROM clients
         WHERE client_name LIKE $1
         ORDER BY id
@@ -84,7 +86,7 @@ pub async fn get_all_clients(pool: &PgPool) -> Result<Vec<ClientResponse>, sqlx:
     let clients = sqlx::query_as!(
         ClientResponse,
         r#"
-        SELECT id, client_code, client_name, usegali, useml, usexro
+        SELECT id, client_code, client_name, usegali, useml, usexro, my_user
         FROM clients
         ORDER BY client_code
         "#
