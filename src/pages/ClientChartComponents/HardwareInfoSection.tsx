@@ -83,7 +83,6 @@ function AddHardwareModal({ onClose, onSave }: AddHardwareModalProps) {
     otherText: ""
   });
 
-  // ユーザー情報は0件からスタート
   const [users, setUsers] = useState<{uuid: string, pass: string}[]>([]);
 
   const handleAddUser = () => {
@@ -102,7 +101,6 @@ function AddHardwareModal({ onClose, onSave }: AddHardwareModalProps) {
   };
 
   const handleSubmit = () => {
-    // 未入力の空ユーザー情報を除外して保存
     const validUsers = users.filter(u => u.uuid.trim() !== "" || u.pass.trim() !== "");
     onSave(hardData, validUsers);
   };
@@ -229,15 +227,27 @@ function AddHardwareModal({ onClose, onSave }: AddHardwareModalProps) {
 // 📦 メイン抽出コンポーネント (HardwareInfoSection)
 // ==========================================
 interface Props {
-  clientId: number; // 💡 追加：親から顧客IDをもらう
+  clientId: number;
   hardList: HardInfo[];
   isLoading: boolean;
   onAddHardware?: () => void;
   onEditHardware?: (hardId: number) => void;
   onRefreshRequested?: () => void;
+  // 💡 親から受け取るプロパティを追加しました
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export default function HardwareInfoSection({ clientId, hardList, isLoading, onAddHardware, onEditHardware, onRefreshRequested }: Props) {
+export default function HardwareInfoSection({ 
+  clientId, 
+  hardList, 
+  isLoading, 
+  onAddHardware, 
+  onEditHardware, 
+  onRefreshRequested,
+  isOpen,   // 💡 追加
+  onToggle  // 💡 追加
+}: Props) {
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; order: SortOrder }>({
     key: "introductionDate", order: "desc",
   });
@@ -268,12 +278,11 @@ export default function HardwareInfoSection({ clientId, hardList, isLoading, onA
     }
   };
 
-  // 💡 追加：ハードウェアの保存処理をRustへ送信
   const handleSaveHardware = async (hardwareData: any, usersData: any[]) => {
     try {
       await invoke("insert_hardware_info", {
         hardInfo: {
-          clientId: clientId, // 親から受け取った顧客IDをセット
+          clientId: clientId,
           hardKbn: hardwareData.hardKbn,
           hostName: hardwareData.hostName,
           ip: hardwareData.ip,
@@ -284,7 +293,6 @@ export default function HardwareInfoSection({ clientId, hardList, isLoading, onA
         userInfos: usersData
       });
 
-      // 成功したらモーダルを閉じて、一覧を再読み込み
       setIsAddModalOpen(false);
       if (onRefreshRequested) {
         onRefreshRequested();
@@ -307,84 +315,96 @@ export default function HardwareInfoSection({ clientId, hardList, isLoading, onA
 
   return (
     <fieldset className="native-fieldset">
-      <legend>ハードウェア導入情報</legend>
+      {/* 💡 legendをクリック可能にして、開閉アイコンを追加しました */}
+      <legend 
+        onClick={onToggle} 
+        style={{ cursor: "pointer", userSelect: "none" }}
+      >
+        {isOpen ? "▼" : "▶"} ハードウェア導入情報
+      </legend>
       
-      <div className="hardware-action-bar">
-        <button className="native-btn add-btn" onClick={() => {
-          if (onAddHardware) onAddHardware();
-          setIsAddModalOpen(true);
-        }}>
-          + 機器追加
-        </button>
-      </div>
+      {/* 💡 isOpen が true のときだけ中身を表示します */}
+      {isOpen && (
+        <>
+          <div className="hardware-action-bar">
+            <button className="native-btn add-btn" onClick={() => {
+              if (onAddHardware) onAddHardware();
+              setIsAddModalOpen(true);
+            }}>
+              + 機器追加
+            </button>
+          </div>
 
-      <div className="table-wrapper">
-        <table className="native-table">
-          <thead>
-            <tr>
-              <th className="sortable-th col-intro-date" onClick={() => handleSort("introductionDate")}>
-                導入日 {sortConfig.key === "introductionDate" && (sortConfig.order === "asc" ? "▲" : "▼")}
-              </th>
-              <th className="sortable-th col-status" onClick={() => handleSort("status")}>
-                状態 {sortConfig.key === "status" && (sortConfig.order === "asc" ? "▲" : "▼")}
-              </th>
-              <th className="sortable-th col-hard-kbn" onClick={() => handleSort("hardKbn")}>
-                種別 {sortConfig.key === "hardKbn" && (sortConfig.order === "asc" ? "▲" : "▼")}
-              </th>
-              <th className="col-host-name">ホスト名</th>
-              <th className="col-ip">IPアドレス</th>
-              <th className="col-actions-header">操作</th>
-            </tr>
-          </thead>
-          {sortedHardList.map(hard => (
-            <tbody key={hard.id} className="chart-row-group" onDoubleClick={() => onEditHardware?.(hard.id)}>
-              <tr className="main-info-row">
-                <td className="col-intro-date">{hard.introductionDate || "---"}</td>
-                <td className="col-status">
-                  <span className={hard.status === 1 ? "status-active" : "status-retired"}>
-                    {hard.status === 1 ? "稼働中" : "撤去済"}
-                  </span>
-                </td>
-                <td className="col-hard-kbn">
-                  <span className={`kbn-tag kbn-${hard.hardKbn}`}>{getHardKbnLabel(hard.hardKbn)}</span>
-                </td>
-                <td className="col-host-name">{hard.hostName || "---"}</td>
-                <td className="col-ip mono-text">{hard.ip || "---"}</td>
-                <td className="col-actions-cell">
-                  <button 
-                    className="native-btn secondary edit-btn" 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      onEditHardware?.(hard.id); 
-                    }}
-                  >
-                    編集
-                  </button>
-                </td>
-              </tr>
-              <tr className="sub-info-row">
-                <td colSpan={6} className="other-text-cell">
-                  <div className="other-text-wrapper">
-                    <div className="other-text-content">
-                      <span className="other-text-label">備考:</span> 
-                      <span className="other-text-value">{hard.otherText || "---"}</span>
-                    </div>
-                    <button className="native-btn secondary small-btn" onClick={(e) => { e.stopPropagation(); handleShowUserInfo(hard.id); }}>
-                      🔑 アカウント表示
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          ))}
-          {sortedHardList.length === 0 && !isLoading && (
-            <tbody>
-              <tr><td colSpan={6} className="no-data-message">登録された情報がありません。</td></tr>
-            </tbody>
-          )}
-        </table>
-      </div>
+          <div className="table-wrapper">
+            <table className="native-table">
+              <thead>
+                <tr>
+                  <th className="sortable-th col-intro-date" onClick={() => handleSort("introductionDate")}>
+                    導入日 {sortConfig.key === "introductionDate" && (sortConfig.order === "asc" ? "▲" : "▼")}
+                  </th>
+                  <th className="sortable-th col-status" onClick={() => handleSort("status")}>
+                    状態 {sortConfig.key === "status" && (sortConfig.order === "asc" ? "▲" : "▼")}
+                  </th>
+                  <th className="sortable-th col-hard-kbn" onClick={() => handleSort("hardKbn")}>
+                    種別 {sortConfig.key === "hardKbn" && (sortConfig.order === "asc" ? "▲" : "▼")}
+                  </th>
+                  <th className="col-host-name">ホスト名</th>
+                  <th className="col-ip">IPアドレス</th>
+                  <th className="col-actions-header">操作</th>
+                </tr>
+              </thead>
+              {sortedHardList.map(hard => (
+                <tbody key={hard.id} className="chart-row-group" onDoubleClick={() => onEditHardware?.(hard.id)}>
+                  <tr className="main-info-row">
+                    <td className="col-intro-date">{hard.introductionDate || "---"}</td>
+                    <td className="col-status">
+                      <span className={hard.status === 1 ? "status-active" : "status-retired"}>
+                        {hard.status === 1 ? "稼働中" : "撤去済"}
+                      </span>
+                    </td>
+                    <td className="col-hard-kbn">
+                      <span className={`kbn-tag kbn-${hard.hardKbn}`}>{getHardKbnLabel(hard.hardKbn)}</span>
+                    </td>
+                    <td className="col-host-name">{hard.hostName || "---"}</td>
+                    <td className="col-ip mono-text">{hard.ip || "---"}</td>
+                    <td className="col-actions-cell">
+                      <button 
+                        className="native-btn secondary edit-btn" 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          onEditHardware?.(hard.id); 
+                        }}
+                      >
+                        編集
+                      </button>
+                    </td>
+                  </tr>
+                  <tr className="sub-info-row">
+                    <td colSpan={6} className="other-text-cell">
+                      <div className="other-text-wrapper">
+                        <div className="other-text-content">
+                          <span className="other-text-label">備考:</span> 
+                          <span className="other-text-value">{hard.otherText || "---"}</span>
+                        </div>
+                        <button className="native-btn secondary small-btn" onClick={(e) => { e.stopPropagation(); handleShowUserInfo(hard.id); }}>
+                          🔑 アカウント表示
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              ))}
+              {sortedHardList.length === 0 && !isLoading && (
+                <tbody>
+                  <tr><td colSpan={6} className="no-data-message">登録された情報がありません。</td></tr>
+                </tbody>
+              )}
+            </table>
+          </div>
+        </>
+      )}
 
+      {/* 💡 モーダルは isOpen の判定外に置くことで、開閉時に影響が出ないようにしています */}
       {viewModalData && <UserInfoModal userInfos={viewModalData} onClose={() => setViewModalData(null)} />}
       {isAddModalOpen && <AddHardwareModal onClose={() => setIsAddModalOpen(false)} onSave={handleSaveHardware} />}
       

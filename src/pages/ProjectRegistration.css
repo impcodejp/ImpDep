@@ -7,8 +7,15 @@
   background-color: #FFFFFF; margin: 0 !important; padding: 0 !important;
   box-sizing: border-box !important; z-index: 9999;
 }
-.native-window-header { background-color: #F3F3F3; padding: 1rem 2rem; border-bottom: 1px solid #DCDCDC; flex-shrink: 0; }
-.native-window-header h1 { font-size: 1.25rem; font-weight: 500; color: #333; margin: 0; }
+.native-window-header { 
+  padding: 1rem 2rem; 
+  flex-shrink: 0; 
+}
+.native-window-header h1 { 
+  font-size: 1.25rem; 
+  font-weight: 500; 
+  margin: 0; 
+}
 .native-window-content { padding: 2rem; flex: 1; overflow-y: auto; width: 100% !important; box-sizing: border-box !important; }
 
 /* 💡 横幅の制限を解除 */

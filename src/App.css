@@ -154,3 +154,32 @@ select.form-input {
   background-size: 0.65rem auto;
   padding-right: 2.5rem; /* 矢印に文字が被らないように */
 }
+
+/* =========================================
+   サブウィンドウ共通ヘッダー
+   ========================================= */
+.native-window-header {
+  /* 背景色と下線をここで一括管理 */
+  background: linear-gradient(to bottom, #4a4a4a, #2b2b2b);
+  border-bottom: 1px solid #1a1a1a;
+  color: #ffffff;
+  
+  /* アイコンとテキストが並ぶ際の中央揃え・隙間設定 */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ヘッダー内のテキスト色を白に強制統一 */
+.native-window-header h1,
+.native-window-header h2,
+.native-window-header h3,
+.native-window-header span {
+  color: #ffffff !important;
+}
+
+/* 歯車などのSVGアイコンの色を白に強制統一 */
+.native-window-header svg {
+  fill: #ffffff;
+  color: #ffffff;
+}

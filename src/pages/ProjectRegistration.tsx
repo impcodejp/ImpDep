@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./ProjectRegistration.css";
 
-interface Client { id: number; clientCode: string; clientName: string; }
+interface Client { id: number; clientCode: number; clientName: string; }
 interface ProjectFormData {
   projectName: string; sales: string; grossProfit: string;
   scheduledDate: string; burdenRatio: string; loadValue: string;
@@ -48,7 +48,8 @@ export default function ProjectRegistration() {
   const handleLoadClient = async (e?: React.MouseEvent | React.KeyboardEvent) => {
     if (!clientSearchCode) return;
     try {
-      const data = await invoke<Client>("get_client_by_code", { code: clientSearchCode });
+      // 💡 修正箇所：clientSearchCode を Number() で数値に変換して送信
+      const data = await invoke<Client>("get_client_by_code", { code: Number(clientSearchCode) });
       setSelectedClient(data);
       setIsSearching(false);
       if (e?.target) focusNextElement(e.target as HTMLElement);
@@ -72,7 +73,7 @@ export default function ProjectRegistration() {
 
   const handleSelectSearchResult = (client: Client) => {
     setSelectedClient(client);
-    setClientSearchCode(client.clientCode);
+    setClientSearchCode(String(client.clientCode));
     setIsSearching(false);
     setSearchName("");
     setSearchResults([]);
@@ -112,7 +113,6 @@ export default function ProjectRegistration() {
 
           <fieldset className="native-fieldset search-section">
             <legend>取引先の指定</legend>
-            {/* 💡 修正：固定幅をなくし flex-1 で広げる */}
             <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap", width: "100%" }}>
               <input type="text" className="native-input flex-1" style={{ marginBottom: 0 }} value={clientSearchCode} onChange={(e) => setClientSearchCode(e.target.value)} placeholder="コード" />
               <button type="button" className="native-btn primary" onClick={(e) => handleLoadClient(e)}>読込</button>
