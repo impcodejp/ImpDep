@@ -25,6 +25,27 @@ pub async fn open_registration_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub async fn open_client_chart(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("client-chart") {
+        let _ = window.set_focus();
+        return Ok(());
+    }
+    WebviewWindowBuilder::new(
+        &app,
+        "client-chart",
+        WebviewUrl::App("/ClientChart".into())
+    )
+    .title("顧客カルテ")
+    .inner_size(800.0, 600.0)
+    .maximized(true)
+    .resizable(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn open_edit_window(app: AppHandle) -> Result<(), String> {
     // 1. 既に「client-edit-window」が開いているかチェック
     if let Some(window) = app.get_webview_window("client-edit-window") {

@@ -27,13 +27,13 @@ pub fn run() {
                 commands::dashboard_commands::get_fiscal_summary,
                 // ウィンドウ表示コマンド
                 commands::window_commands::open_registration_window,
-                // ウィンドウ表示コマンド（追加分）
                 commands::window_commands::open_edit_window,
                 commands::window_commands::open_project_registration_window,
                 commands::window_commands::open_project_detail_window,
                 commands::window_commands::open_history_log_registration_window,
                 commands::window_commands::open_load_transition_report,
                 commands::window_commands::open_budget_setting,
+                commands::window_commands::open_client_chart,
                 // 取引先関連操作コマンド
                 commands::client_commands::add_client,
                 commands::client_commands::get_client_by_code,
@@ -55,6 +55,10 @@ pub fn run() {
                 commands::todo_commands::get_todo,
                 commands::todo_commands::add_todo,
                 commands::todo_commands::update_todo_status,
+                // 顧客カルテ用コマンド
+                commands::client_commands::get_hard_info_by_client_id,
+                commands::client_commands::get_hard_user_info_secure,
+                commands::client_commands::insert_hardware_info,
                 // 帳票出力関連操作コマンド
                 commands::report_commands::get_monthly_load_transition,
             ])

@@ -1,0 +1,107 @@
+/* =========================================
+   ClientChart.css
+   全体レイアウト・検索・顧客バナー
+   ========================================= */
+
+/* 全体レイアウト */
+.native-window-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.native-window-header {
+  background: linear-gradient(to bottom, #4a4a4a, #2b2b2b);
+  color: white;
+  padding: 8px 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.native-window-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+/* 検索セクション */
+.search-section {
+  max-width: 600px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.search-inputs-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.search-panel-inline {
+  background: #f9f9f9;
+  border: 1px dashed #ccc;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.search-results-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.search-results-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.search-results-list li:hover {
+  background: #e3f2fd;
+}
+
+.search-error-message {
+  color: #d32f2f;
+  background-color: #fdecea;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+/* 顧客情報バナー */
+.client-info-banner {
+  background: white;
+  border-left: 5px solid #0056b3;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.client-info-banner h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.client-info-banner h2 small {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+/* ユーティリティ */
+.flex-1 { flex: 1; }

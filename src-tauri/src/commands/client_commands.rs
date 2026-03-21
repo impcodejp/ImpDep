@@ -1,7 +1,9 @@
 use tauri::State;
 use crate::AppState; // lib.rsで定義したAppState
 use crate::models::client::{CreateClientInput, ClientResponse, UpdateClientInput};
+use crate::models::hard_info::{GetHardInfo, HardUserInfo, InsertHardInfo, InsertHardUserInfo};
 use crate::repositories::client_repository;
+use crate::repositories::hard_info_repository;
 
 #[tauri::command]
 pub async fn add_client(
@@ -67,4 +69,47 @@ pub async fn get_all_clients(
             println!("DB Error (get_all_clients): {:?}", e);
             "取引先一覧の取得に失敗しました".to_string()
         })
+}
+
+#[tauri::command]
+pub async fn get_hard_info_by_client_id(
+    state: State<'_, AppState>,
+    client_id: i32, 
+) -> Result<Vec<GetHardInfo>, String> {
+    hard_info_repository::get_hard_info_by_client_id(&state.db, client_id)
+    .await
+    .map_err(|e| {
+        println!("DB Error (search_clients): {:?}", e);
+        "ハード導入情報の検索に失敗しました".to_string()
+    })
+}
+
+#[tauri::command]
+pub async fn get_hard_user_info_secure(
+    state: State<'_, AppState>,
+    hard_id: i32,
+    input_password: String,
+) -> Result<Vec<HardUserInfo>, String> {
+    let master_password = "MJS369CS"; 
+    if input_password != master_password {
+        return Err("パスワードが正しくありません".to_string());
+    }
+
+    hard_info_repository::get_user_info_by_hard_id(&state.db, hard_id)
+        .await
+        .map_err(|e| {
+            println!("アカウント情報の取得に失敗しました:{}", e);
+            "アカウント情報の取得に失敗しました".to_string()
+        })
+}
+
+#[tauri::command]
+pub async fn insert_hardware_info(
+    state: State<'_, AppState>,
+    hard_info: InsertHardInfo,
+    user_infos: Vec<InsertHardUserInfo>,
+) -> Result<(), String> {
+    hard_info_repository::insert_hardware_with_users(&state.db, hard_info, user_infos)
+        .await
+        .map_err(|e| format!("機器情報の登録に失敗しました: {}", e))
 }

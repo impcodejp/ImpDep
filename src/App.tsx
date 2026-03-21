@@ -13,6 +13,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import HistoryLogRegistration from "./pages/HistoryLogRegistration";
 import LoadTransitionReport from "./pages/LoadTransitionReport";
 import BudgetSetting from "./pages/BudgetSetting";
+import ClientChart from "./pages/ClientChart";
 
 import "./App.css";
 
@@ -24,6 +25,7 @@ function MainScreen() {
   const openProjectRegistration = async () => { try { await invoke("open_project_registration_window"); } catch (error) { console.error(error); } };
   const openLoadTransitionReport = async () => { try { await invoke("open_load_transition_report"); } catch (error) { console.error(error); } };
   const openBudgetSetting = async () => { try { await invoke("open_budget_setting"); } catch (error) { console.error(error); } };
+  const openClientChart = async () => { try {await invoke("open_client_chart"); } catch (error) {console.error(error); } };
 
   return (
     <div className="app-layout">
@@ -58,6 +60,7 @@ function MainScreen() {
               openClientRegistration={openClientRegistration} openClientEdit={openClientEdit}
               openProjectRegistration={openProjectRegistration} openLoadTransitionReport={openLoadTransitionReport}
               openBudgetSetting={openBudgetSetting} setActiveTab={setActiveTab}
+              openClientChart={openClientChart}
             />
           </div>
         )}
@@ -80,6 +83,7 @@ function App() {
         <Route path="/history-log-registration/:id" element={<HistoryLogRegistration />} />
         <Route path="/LoadTransitionReport" element={<LoadTransitionReport />} />
         <Route path="/BudgetSetting" element={<BudgetSetting />} />
+        <Route path="/ClientChart" element={<ClientChart />}></Route>
       </Routes>
     </BrowserRouter>
   );

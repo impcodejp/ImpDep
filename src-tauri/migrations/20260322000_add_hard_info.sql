@@ -6,7 +6,7 @@ CREATE TABLE hard_info (
     ip inet, -- IPアドレス（inet型に変更。/24の有無どちらも対応可能）
     introduction_date DATE, -- 導入日（不明な機器もあるためNULL許可、小文字に統一）
     other_text TEXT, -- 備考（不要な場合もあるためNULL許可）
-    status INTEGER DEFAULT 1, -- 稼働ステータス（例: 1:稼働中, 2:予備機, 3:廃棄済み / デフォルトを1に）
+    status INTEGER DEFAULT 1, -- 稼働ステータス（例: 1:稼働中, 2:廃棄済み デフォルトを1に）
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 作成日時（登録時に現在時刻を自動設定）
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 更新日時（登録時に現在時刻を自動設定）
 );
