@@ -89,3 +89,59 @@ pub async fn insert_hardware_with_users(
     tx.commit().await?;
     Ok(())
 }
+
+// 💡 追加：特定機器のアカウント情報のみを「洗い替え」で更新する
+pub async fn update_hard_user_info(
+    pool: &PgPool,
+    hard_id: i32,
+    users: Vec<InsertHardUserInfo>,
+) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    // 1. 現在のユーザー情報を一度すべて削除
+    sqlx::query!(
+        "DELETE FROM hard_user_info WHERE hard_id = $1",
+        hard_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    // 2. 新しいユーザー情報をインサート
+    for user in users {
+        sqlx::query!(
+            r#"
+            INSERT INTO hard_user_info (hard_id, uuid, pass)
+            VALUES ($1, NULLIF($2, ''), NULLIF($3, ''))
+            "#,
+            hard_id,
+            user.uuid,
+            user.pass
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+    Ok(())
+}
+
+pub async fn update_hardware_basic(
+    pool: &PgPool,
+    hard: InsertHardInfo, // 💡 ID入り構造体を受け取る
+) -> Result<(), sqlx::Error> {
+    let hard_id = hard.id.expect("ID must be present for update");
+
+    sqlx::query!(
+        r#"
+        UPDATE hard_info 
+        SET hard_kbn = $1, host_name = NULLIF($2, ''), ip = NULLIF($3, '')::inet, 
+            introduction_date = NULLIF($4, '')::date, other_text = NULLIF($5, ''), status = $6,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $7
+        "#,
+        hard.hard_kbn, hard.host_name, hard.ip, hard.introduction_date, hard.other_text, hard.status, hard_id
+    )
+    .execute(pool)
+    .await?;
+    Ok(())
+}

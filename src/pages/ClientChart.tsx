@@ -17,7 +17,8 @@ export default function ClientChart() {
   
   const [hardList, setHardList] = useState<HardInfo[]>([]);
   const [contactList, setContactList] = useState<ContactInfo[]>([]);
-  const [softwareList, setSoftwareList] = useState<SoftwareInfo[]>([]);
+  // 💡 修正：単一のオブジェクトまたは null で管理する
+  const [softwareInfo, setSoftwareInfo] = useState<SoftwareInfo | null>(null);
   
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export default function ClientChart() {
     if (client?.clientCode !== code) {
       setHardList([]);
       setContactList([]);
-      setSoftwareList([]);
+      setSoftwareInfo(null); // 💡 修正
     }
 
     try {
@@ -55,9 +56,10 @@ export default function ClientChart() {
         .catch(() => []);
       setContactList(contacts);
 
-      const softwares = await invoke<SoftwareInfo[]>("get_software_info_by_client_id", { clientId: clientData.id })
-        .catch(() => []);
-      setSoftwareList(softwares);
+      // 💡 修正：配列ではなく単一のデータとして取得する
+      const softInfo = await invoke<SoftwareInfo | null>("get_software_info_by_client_id", { clientId: clientData.id })
+        .catch(() => null);
+      setSoftwareInfo(softInfo);
       
       setIsSearching(false);
     } catch (error) {
@@ -65,7 +67,7 @@ export default function ClientChart() {
       setClient(null);
       setHardList([]);
       setContactList([]);
-      setSoftwareList([]);
+      setSoftwareInfo(null); // 💡 修正
     } finally {
       setIsLoading(false);
     }
@@ -153,12 +155,10 @@ export default function ClientChart() {
               <h2>{client.clientName} 様 <small>(CD: {client.clientCode})</small></h2>
             </div>
 
-            {/* 💡 各コンポーネントに isOpen と onToggle を渡します */}
-
+            {/* 💡 修正：softwareList を softwareInfo に変更 */}
             <SoftwareInfoSection 
               clientId={client.id}
-              softwareList={softwareList} 
-              isLoading={isLoading} 
+              softwareInfo={softwareInfo} 
               onRefreshRequested={() => loadClientChart(client.clientCode)}
               isOpen={isSoftwareOpen}
               onToggle={() => setIsSoftwareOpen(!isSoftwareOpen)}

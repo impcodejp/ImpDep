@@ -23,200 +23,101 @@ export interface HardUserInfo {
 type SortKey = "hardKbn" | "introductionDate" | "status";
 type SortOrder = "asc" | "desc";
 
-// ==========================================
-// 🔑 閲覧用：アカウント情報表示モーダル
-// ==========================================
-interface UserInfoModalProps {
-  userInfos: HardUserInfo[];
-  onClose: () => void;
+interface Props {
+  clientId: number;
+  hardList: HardInfo[];
+  isLoading: boolean;
+  onRefreshRequested: () => void;
+  isOpen: boolean;
+  onToggle: () => void;
 }
-function UserInfoModal({ userInfos, onClose }: UserInfoModalProps) {
+
+// ==========================================
+// 🔑 1. アカウント情報 表示モーダル
+// ==========================================
+function UserInfoModal({ userInfos, onClose }: { userInfos: HardUserInfo[]; onClose: () => void }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <header className="modal-header">
-          <h3>🔑 アカウント情報</h3>
+          <h3>🔑 登録アカウント一覧</h3>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </header>
         <div className="modal-body">
           {userInfos.length > 0 ? (
-            userInfos.map((u, index) => (
-              <div key={u.id} className="user-info-item">
-                {userInfos.length > 1 && <div className="user-index">アカウント {index + 1}</div>}
-                <div className="info-field">
-                  <label>UID:</label>
-                  <input type="text" readOnly value={u.uuid || ""} onClick={(e) => (e.target as HTMLInputElement).select()} />
+            <div className="account-view-list">
+              {userInfos.map((u: HardUserInfo, i: number) => (
+                <div key={u.id || i} className="account-view-card">
+                  <div className="card-badge">アカウント {i + 1}</div>
+                  <div className="info-field"><label>UID</label><input type="text" readOnly value={u.uuid || ""} onClick={(e) => (e.target as HTMLInputElement).select()} /></div>
+                  <div className="info-field"><label>PASS</label><input type="text" readOnly value={u.pass || ""} onClick={(e) => (e.target as HTMLInputElement).select()} /></div>
                 </div>
-                <div className="info-field">
-                  <label>PASS:</label>
-                  <input type="text" readOnly value={u.pass || ""} onClick={(e) => (e.target as HTMLInputElement).select()} />
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="no-data">登録情報はありません。</p>
-          )}
+              ))}
+            </div>
+          ) : <p className="no-data-text">登録情報はありません。</p>}
         </div>
-        <footer className="modal-footer">
-          <p className="help-text">※ 項目をクリックで全選択されます</p>
-          <button className="native-btn primary" onClick={onClose}>閉じる</button>
-        </footer>
+        <footer className="modal-footer"><button className="btn-primary" onClick={onClose}>閉じる</button></footer>
       </div>
     </div>
   );
 }
 
 // ==========================================
-// ➕ 登録用：機器追加モーダル
+// 📝 2. 機器・アカウント 登録/編集モーダル（完全復元）
 // ==========================================
-interface AddHardwareModalProps {
-  onClose: () => void;
-  onSave: (hardwareData: any, usersData: any[]) => void;
-}
-function AddHardwareModal({ onClose, onSave }: AddHardwareModalProps) {
+function HardwareEditModal({ onClose, onSave, initialData }: { onClose: () => void, onSave: any, initialData?: HardInfo }) {
   const [hardData, setHardData] = useState({
-    hardKbn: 1,
-    introductionDate: "",
-    status: 1,
-    hostName: "",
-    ip: "",
-    otherText: ""
+    hardKbn: initialData?.hardKbn ?? 1,
+    introductionDate: initialData?.introductionDate ?? "",
+    status: initialData?.status ?? 1,
+    hostName: initialData?.hostName ?? "",
+    ip: initialData?.ip ?? "",
+    otherText: initialData?.otherText ?? ""
   });
-
-  const [users, setUsers] = useState<{uuid: string, pass: string}[]>([]);
-
-  const handleAddUser = () => {
-    setUsers([...users, { uuid: "", pass: "" }]);
-  };
-
-  const handleUserChange = (index: number, field: "uuid" | "pass", value: string) => {
-    const newUsers = [...users];
-    newUsers[index][field] = value;
-    setUsers(newUsers);
-  };
-
-  const handleRemoveUser = (index: number) => {
-    const newUsers = users.filter((_, i) => i !== index);
-    setUsers(newUsers);
-  };
-
-  const handleSubmit = () => {
-    const validUsers = users.filter(u => u.uuid.trim() !== "" || u.pass.trim() !== "");
-    onSave(hardData, validUsers);
-  };
+  const [newUsers, setNewUsers] = useState<{uuid: string, pass: string}[]>([]);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
         <header className="modal-header">
-          <h3>➕ 機器情報の追加</h3>
+          <h3>{initialData ? "✏️ 機器情報の編集" : "➕ 新規機器の追加"}</h3>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </header>
-        
-        <div className="modal-body form-body">
-          <div className="form-section">
-            <h4 className="form-section-title">基本情報</h4>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>種別</label>
-                <select 
-                  className="native-input" 
-                  value={hardData.hardKbn} 
-                  onChange={(e) => setHardData({...hardData, hardKbn: Number(e.target.value)})}
-                >
-                  <option value={1}>サーバ</option>
-                  <option value={2}>PC</option>
-                  <option value={3}>NW機器</option>
-                  <option value={99}>その他</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>状態</label>
-                <select 
-                  className="native-input" 
-                  value={hardData.status} 
-                  onChange={(e) => setHardData({...hardData, status: Number(e.target.value)})}
-                >
-                  <option value={1}>稼働中</option>
-                  <option value={2}>撤去済</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>導入日</label>
-                <input 
-                  type="date" 
-                  className="native-input" 
-                  value={hardData.introductionDate} 
-                  onChange={(e) => setHardData({...hardData, introductionDate: e.target.value})} 
-                />
-              </div>
-              <div className="form-group">
-                <label>ホスト名</label>
-                <input 
-                  type="text" 
-                  className="native-input" 
-                  value={hardData.hostName} 
-                  onChange={(e) => setHardData({...hardData, hostName: e.target.value})} 
-                />
-              </div>
-              <div className="form-group">
-                <label>IPアドレス</label>
-                <input 
-                  type="text" 
-                  className="native-input" 
-                  value={hardData.ip} 
-                  onChange={(e) => setHardData({...hardData, ip: e.target.value})} 
-                  placeholder="例: 192.168.1.1"
-                />
-              </div>
+        <div className="modal-body">
+          <div className="form-layout-grid">
+            {/* 左カラム：基本属性 */}
+            <div className="form-column">
+              <h4 className="section-title">基本属性</h4>
+              <div className="form-group"><label>機器種別</label><select value={hardData.hardKbn} onChange={e => setHardData({...hardData, hardKbn: Number(e.target.value)})}><option value={1}>サーバ</option><option value={2}>PC</option><option value={3}>NW機器</option><option value={99}>その他</option></select></div>
+              <div className="form-group"><label>稼働状態</label><select value={hardData.status} onChange={e => setHardData({...hardData, status: Number(e.target.value)})}><option value={1}>稼働中</option><option value={2}>撤去済</option></select></div>
+              <div className="form-group"><label>導入日</label><input type="date" value={hardData.introductionDate || ""} onChange={e => setHardData({...hardData, introductionDate: e.target.value})} /></div>
             </div>
-            <div className="form-group full-width" style={{ marginTop: "12px" }}>
-              <label>備考</label>
-              <textarea 
-                className="native-input" 
-                rows={2}
-                value={hardData.otherText} 
-                onChange={(e) => setHardData({...hardData, otherText: e.target.value})} 
-              />
-            </div>
-          </div>
-
-          <div className="form-section">
-            <h4 className="form-section-title">アカウント情報</h4>
-            <div className="dynamic-user-list">
-              {users.map((user, index) => (
-                <div key={index} className="dynamic-user-row">
-                  <div className="user-index-badge">ユーザー {index + 1}</div>
-                  <div className="user-inputs">
-                    <input 
-                      type="text" 
-                      className="native-input" 
-                      placeholder="UID" 
-                      value={user.uuid}
-                      onChange={(e) => handleUserChange(index, "uuid", e.target.value)}
-                    />
-                    <input 
-                      type="text" 
-                      className="native-input" 
-                      placeholder="PASSWORD" 
-                      value={user.pass}
-                      onChange={(e) => handleUserChange(index, "pass", e.target.value)}
-                    />
-                  </div>
-                  <button className="remove-user-btn" onClick={() => handleRemoveUser(index)}>✖</button>
-                </div>
-              ))}
+            {/* 右カラム：接続情報 */}
+            <div className="form-column">
+              <h4 className="section-title">接続設定</h4>
+              <div className="form-group"><label>ホスト名</label><input type="text" value={hardData.hostName || ""} onChange={e => setHardData({...hardData, hostName: e.target.value})} /></div>
+              <div className="form-group"><label>IPアドレス</label><input type="text" value={hardData.ip || ""} onChange={e => setHardData({...hardData, ip: e.target.value})} /></div>
               
-              <button className="add-user-btn" onClick={handleAddUser}>
-                ＋ ユーザー情報を追加
-              </button>
+              {!initialData && (
+                <div className="embedded-account-section">
+                  <label className="field-label-sm">初期アカウント追加</label>
+                  {newUsers.map((u, i) => (
+                    <div key={i} className="mini-user-row">
+                      <input type="text" placeholder="UID" value={u.uuid} onChange={e => { const n = [...newUsers]; n[i].uuid = e.target.value; setNewUsers(n); }} />
+                      <input type="text" placeholder="PASS" value={u.pass} onChange={e => { const n = [...newUsers]; n[i].pass = e.target.value; setNewUsers(n); }} />
+                      <button className="btn-icon-del" onClick={() => setNewUsers(newUsers.filter((_, idx) => idx !== i))}>×</button>
+                    </div>
+                  ))}
+                  <button className="btn-add-inline" onClick={() => setNewUsers([...newUsers, {uuid: "", pass: ""}])}>+ 追加</button>
+                </div>
+              )}
             </div>
           </div>
+          <div className="form-group full-width-group"><label>備考</label><textarea rows={2} value={hardData.otherText || ""} onChange={e => setHardData({...hardData, otherText: e.target.value})} /></div>
         </div>
-
         <footer className="modal-footer">
-          <button className="native-btn secondary" onClick={onClose}>キャンセル</button>
-          <button className="native-btn primary" onClick={handleSubmit}>登録する</button>
+          <button className="btn-secondary" onClick={onClose}>キャンセル</button>
+          <button className="btn-primary" onClick={() => onSave({ ...hardData, id: initialData?.id }, newUsers)}>保存</button>
         </footer>
       </div>
     </div>
@@ -224,190 +125,141 @@ function AddHardwareModal({ onClose, onSave }: AddHardwareModalProps) {
 }
 
 // ==========================================
-// 📦 メイン抽出コンポーネント (HardwareInfoSection)
+// 🔐 3. アカウント情報 編集専用モーダル
 // ==========================================
-interface Props {
-  clientId: number;
-  hardList: HardInfo[];
-  isLoading: boolean;
-  onAddHardware?: () => void;
-  onEditHardware?: (hardId: number) => void;
-  onRefreshRequested?: () => void;
-  // 💡 親から受け取るプロパティを追加しました
-  isOpen: boolean;
-  onToggle: () => void;
+function AccountEditModal({ hardId, initialUsers, password, onClose, onRefresh }: any) {
+  const [users, setUsers] = useState(initialUsers.map((u: any) => ({ uuid: u.uuid || "", pass: u.pass || "" })));
+  const handleSave = async () => {
+    try {
+      await invoke("update_hardware_accounts", { hardId, userInfos: users, inputPassword: password });
+      onRefresh(); onClose();
+    } catch (err) { alert(err); }
+  };
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <header className="modal-header"><h3>🔐 アカウント情報の編集</h3></header>
+        <div className="modal-body">
+          <div className="account-edit-list">
+            {users.map((u: any, i: number) => (
+              <div key={i} className="edit-user-row">
+                <input type="text" placeholder="UID" value={u.uuid} onChange={e => { const n = [...users]; n[i].uuid = e.target.value; setUsers(n); }} />
+                <input type="text" placeholder="PASS" value={u.pass} onChange={e => { const n = [...users]; n[i].pass = e.target.value; setUsers(n); }} />
+                <button className="btn-icon-del" onClick={() => setUsers(users.filter((_:any,idx:number) => idx !== i))}>×</button>
+              </div>
+            ))}
+            <button className="btn-add-inline" onClick={() => setUsers([...users, {uuid:"", pass:""}])}>+ 追加</button>
+          </div>
+        </div>
+        <footer className="modal-footer">
+          <button className="btn-secondary" onClick={onClose}>キャンセル</button>
+          <button className="btn-primary" onClick={handleSave}>保存</button>
+        </footer>
+      </div>
+    </div>
+  );
 }
 
-export default function HardwareInfoSection({ 
-  clientId, 
-  hardList, 
-  isLoading, 
-  onAddHardware, 
-  onEditHardware, 
-  onRefreshRequested,
-  isOpen,   // 💡 追加
-  onToggle  // 💡 追加
-}: Props) {
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; order: SortOrder }>({
-    key: "introductionDate", order: "desc",
-  });
-  
-  const [viewModalData, setViewModalData] = useState<HardUserInfo[] | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+// ==========================================
+// 📦 メインコンポーネント
+// ==========================================
+export default function HardwareInfoSection({ clientId, hardList, isLoading, onRefreshRequested, isOpen, onToggle }: Props) {
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; order: SortOrder }>({ key: "introductionDate", order: "desc" });
+  const [viewData, setViewData] = useState<HardUserInfo[] | null>(null);
+  const [infoEdit, setInfoEdit] = useState<HardInfo | null>(null);
+  const [accEdit, setAccEdit] = useState<{ hardId: number, users: HardUserInfo[], pass: string } | null>(null);
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const sortedHardList = useMemo(() => {
+  const sortedList = useMemo(() => {
     let items = [...hardList];
     items.sort((a, b) => {
-      const valA = a[sortConfig.key] ?? "";
-      const valB = b[sortConfig.key] ?? "";
-      if (valA < valB) return sortConfig.order === "asc" ? -1 : 1;
-      if (valA > valB) return sortConfig.order === "asc" ? 1 : -1;
-      return 0;
+      const valA = (a as any)[sortConfig.key] ?? "";
+      const valB = (b as any)[sortConfig.key] ?? "";
+      return sortConfig.order === "asc" ? (valA < valB ? -1 : 1) : (valA > valB ? -1 : 1);
     });
     return items;
   }, [hardList, sortConfig]);
 
-  const handleShowUserInfo = async (hardId: number) => {
-    const password = prompt("閲覧パスワードを入力してください");
-    if (!password) return;
-    try {
-      const dataList = await invoke<HardUserInfo[]>("get_hard_user_info_secure", { hardId, inputPassword: password });
-      setViewModalData(dataList); 
-    } catch (error: any) {
-      alert(error);
-    }
-  };
-
-  const handleSaveHardware = async (hardwareData: any, usersData: any[]) => {
-    try {
-      await invoke("insert_hardware_info", {
-        hardInfo: {
-          clientId: clientId,
-          hardKbn: hardwareData.hardKbn,
-          hostName: hardwareData.hostName,
-          ip: hardwareData.ip,
-          introductionDate: hardwareData.introductionDate,
-          otherText: hardwareData.otherText,
-          status: hardwareData.status
-        },
-        userInfos: usersData
-      });
-
-      setIsAddModalOpen(false);
-      if (onRefreshRequested) {
-        onRefreshRequested();
-      }
-    } catch (error: any) {
-      alert(`登録エラー: ${error}`);
-    }
-  };
-
-  const handleSort = (key: SortKey) => {
-    setSortConfig({
-      key,
-      order: sortConfig.key === key && sortConfig.order === "asc" ? "desc" : "asc",
-    });
-  };
-
-  const getHardKbnLabel = (kbn: number) => {
-    switch (kbn) { case 1: return "サーバ"; case 2: return "PC"; case 3: return "NW機器"; default: return "その他"; }
+  const handleHeaderClick = (key: SortKey) => {
+    setSortConfig({ key, order: sortConfig.key === key && sortConfig.order === "asc" ? "desc" : "asc" });
   };
 
   return (
-    <fieldset className="native-fieldset">
-      {/* 💡 legendをクリック可能にして、開閉アイコンを追加しました */}
-      <legend 
-        onClick={onToggle} 
-        style={{ cursor: "pointer", userSelect: "none" }}
-      >
-        {isOpen ? "▼" : "▶"} ハードウェア導入情報
+    <fieldset className="hardware-section-fieldset">
+      <legend onClick={onToggle} className="section-legend">
+        <span className={`arrow ${isOpen ? "open" : ""}`}>▶</span> ハードウェア導入情報
       </legend>
-      
-      {/* 💡 isOpen が true のときだけ中身を表示します */}
-      {isOpen && (
-        <>
-          <div className="hardware-action-bar">
-            <button className="native-btn add-btn" onClick={() => {
-              if (onAddHardware) onAddHardware();
-              setIsAddModalOpen(true);
-            }}>
-              + 機器追加
-            </button>
-          </div>
 
-          <div className="table-wrapper">
-            <table className="native-table">
+      {isOpen && (
+        <div className="section-content">
+          <div className="action-row">
+            <button className="btn-add-main" onClick={() => setIsAddOpen(true)}>+ 機器追加</button>
+          </div>
+          <div className="hardware-table-container">
+            {isLoading && <div className="loading-bar">読み込み中...</div>}
+            <table className="hardware-main-table">
               <thead>
                 <tr>
-                  <th className="sortable-th col-intro-date" onClick={() => handleSort("introductionDate")}>
-                    導入日 {sortConfig.key === "introductionDate" && (sortConfig.order === "asc" ? "▲" : "▼")}
-                  </th>
-                  <th className="sortable-th col-status" onClick={() => handleSort("status")}>
-                    状態 {sortConfig.key === "status" && (sortConfig.order === "asc" ? "▲" : "▼")}
-                  </th>
-                  <th className="sortable-th col-hard-kbn" onClick={() => handleSort("hardKbn")}>
-                    種別 {sortConfig.key === "hardKbn" && (sortConfig.order === "asc" ? "▲" : "▼")}
-                  </th>
-                  <th className="col-host-name">ホスト名</th>
-                  <th className="col-ip">IPアドレス</th>
-                  <th className="col-actions-header">操作</th>
+                  <th className="w-date" onClick={() => handleHeaderClick("introductionDate")}>導入日</th>
+                  <th className="w-status" onClick={() => handleHeaderClick("status")}>状態</th>
+                  <th className="w-kbn" onClick={() => handleHeaderClick("hardKbn")}>種別</th>
+                  <th className="w-host">ホスト名</th>
+                  <th className="w-ip">IPアドレス</th>
+                  <th className="w-btn-half">操作</th>
+                  <th className="w-btn-half"></th>
                 </tr>
               </thead>
-              {sortedHardList.map(hard => (
-                <tbody key={hard.id} className="chart-row-group" onDoubleClick={() => onEditHardware?.(hard.id)}>
-                  <tr className="main-info-row">
-                    <td className="col-intro-date">{hard.introductionDate || "---"}</td>
-                    <td className="col-status">
-                      <span className={hard.status === 1 ? "status-active" : "status-retired"}>
-                        {hard.status === 1 ? "稼働中" : "撤去済"}
-                      </span>
-                    </td>
-                    <td className="col-hard-kbn">
-                      <span className={`kbn-tag kbn-${hard.hardKbn}`}>{getHardKbnLabel(hard.hardKbn)}</span>
-                    </td>
-                    <td className="col-host-name">{hard.hostName || "---"}</td>
-                    <td className="col-ip mono-text">{hard.ip || "---"}</td>
-                    <td className="col-actions-cell">
-                      <button 
-                        className="native-btn secondary edit-btn" 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          onEditHardware?.(hard.id); 
-                        }}
-                      >
-                        編集
-                      </button>
+              {sortedList.map(hard => (
+                <tbody key={hard.id} className="hardware-row-group">
+                  {/* 1行目: 1+1+1+1+1+2(編集) = 7列 */}
+                  <tr className="main-row" onDoubleClick={() => setInfoEdit(hard)}>
+                    <td className="w-date">{hard.introductionDate || "---"}</td>
+                    <td className="w-status text-center"><span className={`badge-status ${hard.status === 1 ? "active" : "retired"}`}>{hard.status === 1 ? "稼働" : "撤去"}</span></td>
+                    <td className="w-kbn">{hard.hardKbn===1?"サーバ":hard.hardKbn===2?"PC":hard.hardKbn===3?"NW機器":"他"}</td>
+                    <td className="w-host">{hard.hostName}</td>
+                    <td className="w-ip mono">{hard.ip}</td>
+                    <td colSpan={2} className="btn-cell">
+                      <button className="btn-table-sm" onClick={() => setInfoEdit(hard)}>編集</button>
                     </td>
                   </tr>
-                  <tr className="sub-info-row">
-                    <td colSpan={6} className="other-text-cell">
-                      <div className="other-text-wrapper">
-                        <div className="other-text-content">
-                          <span className="other-text-label">備考:</span> 
-                          <span className="other-text-value">{hard.otherText || "---"}</span>
-                        </div>
-                        <button className="native-btn secondary small-btn" onClick={(e) => { e.stopPropagation(); handleShowUserInfo(hard.id); }}>
-                          🔑 アカウント表示
-                        </button>
+                  {/* 2行目: 4(備考)+1(ラベル)+1(表示)+1(編集) = 7列 */}
+                  <tr className="sub-row">
+                    <td colSpan={4} className="memo-cell">
+                      <div className="memo-flex">
+                        <span className="memo-label">備考</span>
+                        <span className="memo-text">{hard.otherText || "---"}</span>
                       </div>
+                    </td>
+                    <td className="acc-label-cell">アカウント情報：</td>
+                    <td className="btn-cell no-border">
+                      <button className="btn-table-sm" onClick={async () => {
+                        const p = prompt("閲覧パスワード");
+                        if(p) invoke<HardUserInfo[]>("get_hard_user_info_secure",{hardId:hard.id,inputPassword:p}).then(setViewData).catch(alert);
+                      }}>表示</button>
+                    </td>
+                    <td className="btn-cell no-border">
+                      <button className="btn-table-sm" onClick={async () => {
+                        const p = prompt("編集パスワード");
+                        if(p) invoke<HardUserInfo[]>("get_hard_user_info_secure",{hardId:hard.id,inputPassword:p}).then(d=>setAccEdit({hardId:hard.id,users:d,pass:p})).catch(alert);
+                      }}>編集</button>
                     </td>
                   </tr>
                 </tbody>
               ))}
-              {sortedHardList.length === 0 && !isLoading && (
-                <tbody>
-                  <tr><td colSpan={6} className="no-data-message">登録された情報がありません。</td></tr>
-                </tbody>
-              )}
             </table>
           </div>
-        </>
+        </div>
       )}
 
-      {/* 💡 モーダルは isOpen の判定外に置くことで、開閉時に影響が出ないようにしています */}
-      {viewModalData && <UserInfoModal userInfos={viewModalData} onClose={() => setViewModalData(null)} />}
-      {isAddModalOpen && <AddHardwareModal onClose={() => setIsAddModalOpen(false)} onSave={handleSaveHardware} />}
-      
+      {viewData && <UserInfoModal userInfos={viewData} onClose={() => setViewData(null)} />}
+      {accEdit && <AccountEditModal hardId={accEdit.hardId} initialUsers={accEdit.users} password={accEdit.pass} onClose={() => setAccEdit(null)} onRefresh={onRefreshRequested} />}
+      {(infoEdit || isAddOpen) && <HardwareEditModal initialData={infoEdit || undefined} onClose={() => {setInfoEdit(null); setIsAddOpen(false);}} onSave={async (d:any,u:any[]) => {
+          try {
+            if(d.id) await invoke("update_hardware_basic_info",{hardInfo:{...d,clientId}});
+            else await invoke("insert_hardware_info",{hardInfo:{...d,clientId},userInfos:u});
+            setInfoEdit(null); setIsAddOpen(false); onRefreshRequested();
+          } catch(err){alert(err);}
+      }} />}
     </fieldset>
   );
 }

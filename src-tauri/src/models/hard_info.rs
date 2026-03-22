@@ -29,6 +29,7 @@ pub struct HardUserInfo {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InsertHardInfo {
+    pub id: Option<i32>,
     pub client_id: i32,
     pub hard_kbn: i32,
     pub host_name: Option<String>,

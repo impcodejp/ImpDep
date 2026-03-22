@@ -6,3 +6,4 @@ pub mod project_change_log_commands;
 pub mod report_commands;
 pub mod budget_commands;
 pub mod todo_commands;
+pub mod soft_info_commands;

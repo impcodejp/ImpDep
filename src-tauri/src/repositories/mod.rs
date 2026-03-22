@@ -6,3 +6,4 @@ pub mod dashboard_repository;
 pub mod budget_repository;
 pub mod todo_repositories;
 pub mod hard_info_repository;
+pub mod soft_info_repository;

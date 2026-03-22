@@ -113,3 +113,34 @@ pub async fn insert_hardware_info(
         .await
         .map_err(|e| format!("機器情報の登録に失敗しました: {}", e))
 }
+
+#[tauri::command]
+pub async fn update_hardware_accounts(
+    state: State<'_, AppState>,
+    hard_id: i32,
+    user_infos: Vec<InsertHardUserInfo>,
+    input_password: String,
+) -> Result<(), String> {
+    // 1. パスワード検証
+    if input_password != "MJS369CS" {
+        return Err("パスワードが正しくありません。".to_string());
+    }
+
+    // 2. 更新実行
+    hard_info_repository::update_hard_user_info(&state.db, hard_id, user_infos)
+        .await
+        .map_err(|e| format!("アカウント更新エラー: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_hardware_basic_info(
+    state: State<'_, AppState>,
+    hard_info: InsertHardInfo,
+) -> Result<(), String> {
+    let _hard_id = hard_info.id.ok_or("IDが指定されていません。")?;
+    hard_info_repository::update_hardware_basic(&state.db, hard_info)
+        .await
+        .map_err(|e| e.to_string())
+}

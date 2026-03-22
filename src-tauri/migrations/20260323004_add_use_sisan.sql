@@ -1,0 +1,1 @@
+ALTER TABLE software_info ADD COLUMN use_sisan BOOLEAN NOT NULL DEFAULT false;
