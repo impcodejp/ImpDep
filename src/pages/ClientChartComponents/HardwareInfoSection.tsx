@@ -185,15 +185,15 @@ export default function HardwareInfoSection({ clientId, hardList, isLoading, onR
   };
 
   return (
-    <fieldset className="hardware-section-fieldset">
-      <legend onClick={onToggle} className="section-legend">
-        <span className={`arrow ${isOpen ? "open" : ""}`}>▶</span> ハードウェア導入情報
+    <fieldset className="native-fieldset hardware-info-form">
+      <legend onClick={onToggle} style={{ cursor: "pointer", userSelect: "none" }}>
+        {isOpen ? "▼" : "▶"} ハードウェア導入情報
       </legend>
 
       {isOpen && (
         <div className="section-content">
-          <div className="action-row">
-            <button className="btn-add-main" onClick={() => setIsAddOpen(true)}>+ 機器追加</button>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+            <button className="native-btn primary" onClick={() => setIsAddOpen(true)}>➕ 機器追加</button>
           </div>
           <div className="hardware-table-container">
             {isLoading && <div className="loading-bar">読み込み中...</div>}

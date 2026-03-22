@@ -2,15 +2,7 @@
    HardwareInfoSection.css
    ========================================= */
 
-.hardware-section-fieldset {
-  border: 1px solid #d1d1d1; border-radius: 4px; background-color: #fff; padding: 0; margin-top: 20px;
-}
-.section-legend { margin-left: 15px; padding: 0 10px; font-weight: bold; color: #444; cursor: pointer; }
-.section-legend .arrow { display: inline-block; transition: transform 0.2s; font-size: 0.8rem; margin-right: 5px; }
-.section-legend .arrow.open { transform: rotate(90deg); }
 .section-content { padding: 12px; }
-.action-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
-.btn-add-main { background: #0078d4; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
 /* テーブル：物理的な7列構成 */
 .hardware-main-table {
