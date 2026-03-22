@@ -10,6 +10,7 @@ export default function ClientRegistration() {
     useml: false,
     usexro: false,
     myUser: false,
+    otherSystem: "", // 💡 追加：その他システム（初期値は空文字）
   });
 
   const [message, setMessage] = useState<{ type: "success" | "error" | ""; text: string }>({
@@ -29,14 +30,12 @@ export default function ClientRegistration() {
     e.preventDefault();
     setMessage({ type: "", text: "" }); 
 
-    // 💡 エラー解決のための追加：ここで clientCode を数値に変換します！
     const submitData = {
       ...formData,
       clientCode: Number(formData.clientCode)
     };
 
     try {
-      // 💡 formData ではなく、変換後の submitData を送ります
       await invoke("add_client", { payload: submitData });
       setMessage({ type: "success", text: "データの登録が完了しました。" });
       setFormData({
@@ -46,6 +45,7 @@ export default function ClientRegistration() {
         useml: false,
         usexro: false,
         myUser: false,
+        otherSystem: "", // 💡 追加：登録成功後のリセット
       });
     } catch (error) {
       console.error(error);
@@ -93,7 +93,6 @@ export default function ClientRegistration() {
             />
           </div>
 
-          {/* 💡 マイユーザー用のチェックボックスを追加 */}
           <div className="checkbox-group-modern">
             <input
               type="checkbox" id="reg-myUser" name="myUser"
@@ -129,6 +128,19 @@ export default function ClientRegistration() {
               />
               <label htmlFor="reg-usexro" className="checkbox-label">Xronos</label>
             </div>
+          </div>
+
+          {/* 💡 追加：その他システムの入力欄 */}
+          <div className="form-group" style={{ marginTop: "1rem" }}>
+            <label className="form-label">その他システム</label>
+            <input
+              type="text"
+              name="otherSystem"
+              value={formData.otherSystem || ""}
+              onChange={handleChange}
+              placeholder="その他のシステム名（任意）"
+              className="native-input"
+            />
           </div>
 
           <div className="form-actions">

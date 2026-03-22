@@ -11,6 +11,7 @@ interface Client {
   useml: boolean;
   usexro: boolean;
   myUser: boolean;
+  otherSystem: string | null; // 💡 追加：nullを許容
 }
 
 export default function ClientList() {
@@ -28,7 +29,6 @@ export default function ClientList() {
     fetchClients();
   }, []);
 
-  // 行をダブルクリックした時の処理
   const handleRowDoubleClick = async (clientCode: number) => {
     try {
       await invoke("open_edit_window");
@@ -57,6 +57,7 @@ export default function ClientList() {
                 <th className="col-name">取引先名</th>
                 <th className="col-status">担当</th>
                 <th className="col-system">利用システム</th>
+                <th className="col-other-system">その他システム</th> {/* 💡 追加 */}
               </tr>
             </thead>
             <tbody>
@@ -78,6 +79,8 @@ export default function ClientList() {
                       {c.usexro && <span className="sys-badge badge-xro">Xronos</span>}
                     </div>
                   </td>
+                  {/* 💡 追加：値がない場合は何も表示しない */}
+                  <td className="col-other-system">{c.otherSystem || ""}</td>
                 </tr>
               ))}
             </tbody>

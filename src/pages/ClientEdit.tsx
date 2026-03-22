@@ -3,19 +3,19 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import "./ClientEdit.css";
 
-// 💡 1. 型定義をバックエンドに合わせて変更します
 interface Client {
   id: number;
-  clientCode: number; // string から number に変更
+  clientCode: number;
   clientName: string;
   usegali: boolean;
   useml: boolean;
   usexro: boolean;
-  myUser: boolean;   // 新しく追加
+  myUser: boolean;
+  otherSystem: string | null; // 💡 追加：nullを許容する型として定義
 }
 
 export default function ClientEditForm() {
-  const [inputCode, setInputCode] = useState(""); // 入力欄用なので state は文字列のままでOKです
+  const [inputCode, setInputCode] = useState("");
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<Client[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -23,12 +23,11 @@ export default function ClientEditForm() {
 
   const fetchClientData = async (targetCode: string | number) => {
     try {
-      // 💡 2. 検索するときにコードを数値に変換して送ります
       const data = await invoke<Client>("get_client_by_code", { code: Number(targetCode) });
       setFormData(data);
       setSearchResults([]);
       setIsSearching(false);
-      setInputCode(String(targetCode)); // 入力欄の表示用
+      setInputCode(String(targetCode));
     } catch (error) {
       alert("指定された取引先コードが見つかりませんでした");
       setFormData(null);
@@ -38,7 +37,6 @@ export default function ClientEditForm() {
   const handleLoadClient = () => { if (inputCode) fetchClientData(inputCode); };
 
   useEffect(() => {
-    // 💡 バックエンドから送られてくる code も数値になっているかもしれないので柔軟に受け取ります
     const unlisten = listen<{ code: string | number }>("load_client_for_edit", (event) => {
       if (event.payload && event.payload.code) fetchClientData(event.payload.code);
     });
@@ -57,7 +55,7 @@ export default function ClientEditForm() {
   };
 
   const handleSelectSearchResult = (client: Client) => {
-    setInputCode(String(client.clientCode)); // 数値を文字列にして入力欄にセット
+    setInputCode(String(client.clientCode));
     setFormData(client);
     setSearchResults([]);
     setIsSearching(false);
@@ -71,7 +69,6 @@ export default function ClientEditForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      // formData の中の clientCode はすでに数値になっているのでそのまま送れます
       await invoke("update_client", { payload: formData });
       alert("取引先の情報を更新しました。");
     } catch (error) {
@@ -93,7 +90,7 @@ export default function ClientEditForm() {
               <label className="form-label" style={{ marginBottom: "4px" }}>取引先コード</label>
               <div style={{ display: "flex", gap: "8px", alignItems: "center", width: "100%" }}>
                 <input
-                  type="number" // 💡 3. 数値しか入力できないように変更
+                  type="number"
                   className="native-input flex-1"
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value)}
@@ -140,7 +137,7 @@ export default function ClientEditForm() {
                 <div className="form-group">
                   <label className="form-label">取引先コード (読取専用)</label>
                   <input
-                    type="number" // 💡 表示も数値用に変更
+                    type="number"
                     name="clientCode"
                     className="native-input readonly-input"
                     value={formData.clientCode}
@@ -160,7 +157,6 @@ export default function ClientEditForm() {
                   />
                 </div>
 
-                {/* 💡 修正ポイント： name="my_user" を name="myUser" に変更しました */}
                 <div className="checkbox-group-modern">
                   <input type="checkbox" id="edit-my_user" name="myUser" className="checkbox-input" checked={formData.myUser} onChange={handleChange} />
                   <label htmlFor="edit-my_user" className="checkbox-label">担当顧客</label>
@@ -180,6 +176,19 @@ export default function ClientEditForm() {
                     <input type="checkbox" id="edit-usexro" name="usexro" className="checkbox-input" checked={formData.usexro} onChange={handleChange} />
                     <label htmlFor="edit-usexro" className="checkbox-label">Xronos</label>
                   </div>
+                </div>
+
+                {/* 💡 追加：その他システムの編集欄 */}
+                <div className="form-group" style={{ marginTop: "1rem" }}>
+                  <label className="form-label">その他システム</label>
+                  <input
+                    type="text"
+                    name="otherSystem"
+                    className="native-input"
+                    value={formData.otherSystem || ""} // nullの場合は空文字を表示
+                    onChange={handleChange}
+                    placeholder="その他のシステム名（任意）"
+                  />
                 </div>
               </fieldset>
               

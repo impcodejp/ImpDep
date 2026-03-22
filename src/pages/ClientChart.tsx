@@ -5,10 +5,15 @@ import ContactInfoSection, { ContactInfo } from "./ClientChartComponents/Contact
 import SoftwareInfoSection, { SoftwareInfo } from "./ClientChartComponents/SoftwareInfoSection";
 import "./ClientChart.css";
 
+// 💡 修正：システム利用状況の項目を追加
 interface Client { 
   id: number; 
   clientCode: number; 
   clientName: string; 
+  usegali: boolean;
+  useml: boolean;
+  usexro: boolean;
+  otherSystem: string | null;
 }
 
 export default function ClientChart() {
@@ -17,7 +22,6 @@ export default function ClientChart() {
   
   const [hardList, setHardList] = useState<HardInfo[]>([]);
   const [contactList, setContactList] = useState<ContactInfo[]>([]);
-  // 💡 修正：単一のオブジェクトまたは null で管理する
   const [softwareInfo, setSoftwareInfo] = useState<SoftwareInfo | null>(null);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +30,10 @@ export default function ClientChart() {
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<Client[]>([]);
 
-  // 💡 各セクションの開閉状態を管理（初期値はすべて true = 開いた状態）
-  const [isHardOpen, setIsHardOpen] = useState(true);
-  const [isContactOpen, setIsContactOpen] = useState(true);
-  const [isSoftwareOpen, setIsSoftwareOpen] = useState(true);
+  // 💡 各セクションの開閉状態を管理
+  const [isHardOpen, setIsHardOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
 
   const loadClientChart = async (targetCode?: number) => {
     const code = targetCode ?? Number(inputCode);
@@ -153,6 +157,17 @@ export default function ClientChart() {
           <div className="chart-main-content">
             <div className="client-info-banner">
               <h2>{client.clientName} 様 <small>(CD: {client.clientCode})</small></h2>
+              
+              {/* 💡 ここに「利用システム」という見出しを追加します */}
+              <h3>利用システム</h3> 
+
+              {/* バッジの部分は、h3 の下に置きます */}
+              <div className="sys-badges">
+                {client.usegali && <span className="sys-badge badge-gali">Galileopt</span>}
+                {client.useml && <span className="sys-badge badge-ml">MJSLINK</span>}
+                {client.usexro && <span className="sys-badge badge-xro">Xronos</span>}
+                {client.otherSystem && <span className="sys-badge badge-other">{client.otherSystem}</span>}
+              </div>
             </div>
 
             {/* 💡 修正：softwareList を softwareInfo に変更 */}

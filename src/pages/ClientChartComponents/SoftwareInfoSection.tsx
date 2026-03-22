@@ -211,8 +211,8 @@ export default function SoftwareInfoSection({ clientId, softwareInfo, onRefreshR
           </div>
 
           <div className="form-group" style={{ marginTop: "16px" }}>
-            <label className="form-label">その他ソフトウェア</label>
-            <input type="text" className="native-input other-system-input" value={formData.useOther} disabled={!isEditing} onChange={(e) => setFormData({...formData, useOther: e.target.value})} placeholder="MJS以外の主要システム" />
+            <label className="form-label">その他モジュール等</label>
+            <input type="text" className="native-input other-system-input" value={formData.useOther} disabled={!isEditing} onChange={(e) => setFormData({...formData, useOther: e.target.value})} placeholder="例）リース管理" />
           </div>
 
           <hr style={{ margin: "20px 0", border: "none", borderTop: "1px dashed #ccc" }} />

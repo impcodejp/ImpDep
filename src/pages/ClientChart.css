@@ -86,6 +86,9 @@
   padding: 12px 20px;
   margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
 }
 
 .client-info-banner h2 {
@@ -99,6 +102,43 @@
   font-weight: normal;
   margin-left: 10px;
 }
+
+.client-info-banner h3 {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #444;
+}
+
+/* 💡 追加：利用システムの見出しとバッジのスタイル */
+.client-info-banner h3 {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.sys-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-start; 
+}
+
+.sys-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+}
+
+.badge-gali { background-color: #4CAF50; }  /* 緑 */
+.badge-ml   { background-color: #2196F3; }  /* 青 */
+.badge-xro  { background-color: #FF9800; }  /* オレンジ */
+.badge-other{ background-color: #9E9E9E; }  /* グレー */
 
 /* ユーティリティ */
 .flex-1 { flex: 1; }
