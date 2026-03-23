@@ -1,158 +1,129 @@
 /* =========================================
-   担当者情報セクション (ContactInfoSection.css)
-========================================= */
+   ContactInfoSection.css
+   ========================================= */
 
-/* コンポーネント全体を囲むフィールドセット */
-.contact-info-section {
+/* 他のセクションと余白感を統一 */
+.section-content { padding: 12px; }
+
+/* ハードウェアセクションと全く同じテーブルスタイル */
+.contact-main-table {
+  width: 100%; 
+  border-collapse: collapse; 
+  table-layout: fixed; 
+  font-size: 0.9rem; 
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 0;
-  margin-bottom: 24px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  /* legendのスタイル崩れを防ぐため */
-  min-width: 0; 
 }
 
-/* 開閉用のタイトル部分（legend） */
-.contact-info-section__legend {
-  font-weight: bold;
-  font-size: 16px;
-  color: #333333;
-  padding: 10px 16px;
-  margin-left: 12px;
-  cursor: pointer;
-  user-select: none;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* タイトルホバー時の背景色 */
-.contact-info-section__legend:hover {
-  background-color: #f8f9fa;
-}
-
-/* 開閉アイコン（▶ / ▼） */
-.contact-info-section__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  color: #666666;
-  font-size: 12px;
-}
-
-/* 展開されるコンテンツ部分 */
-.contact-info-section__content {
-  padding: 20px;
-  border-top: 1px solid #eeeeee;
-}
-
-/* ローディングメッセージ */
-.contact-info-section__message {
-  color: #666666;
-  text-align: center;
-  padding: 24px 0;
-  margin: 0;
-  font-size: 14px;
-}
-
-/* データがない場合のメッセージ */
-.contact-info-section__empty {
-  color: #666666;
-  text-align: center;
-  padding: 32px 0;
-  margin: 0;
-  font-size: 14px;
-  background-color: #fafafa;
-  border-radius: 4px;
-  border: 1px dashed #cccccc;
-}
-
-/* ボタンを配置するヘッダー部 */
-.contact-info-section__header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-}
-
-/* 汎用ボタンデザイン */
-.contact-info-btn {
-  padding: 8px 20px;
-  font-size: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  font-weight: bold;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* ボタン押下時のちょっとしたアニメーション */
-.contact-info-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-/* プライマリボタン（追加ボタンなど） */
-.contact-info-btn--primary {
-  background-color: #007bff;
-  color: #ffffff;
-}
-
-.contact-info-btn--primary:hover {
-  background-color: #0056b3;
-}
-
-/* テーブルを囲むラッパー（横スクロール対応） */
-.contact-info-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-}
-
-/* テーブル本体 */
-.contact-info-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 14px;
-  background-color: #ffffff;
-}
-
-/* テーブルのヘッダーセル */
-.contact-info-table__th {
-  background-color: #f8f9fa;
-  color: #495057;
-  padding: 12px 16px;
-  border-bottom: 2px solid #dee2e6;
+.contact-main-table th, 
+.contact-main-table td {
+  padding: 8px 10px; 
+  border-bottom: 1px solid #eee; 
+  border-right: 1px solid #eee;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
   white-space: nowrap;
-  font-weight: 600;
 }
 
-/* 名前列の幅を少し広めに固定 */
-.contact-info-table__th--name {
-  width: 25%;
-  min-width: 140px;
+.contact-main-table th { 
+  background: #f8f8f8; 
+  color: #666; 
+  text-align: left; 
+  border-bottom: 2px solid #ddd; 
 }
 
-/* テーブルのデータセル */
-.contact-info-table__td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
-  color: #333333;
-  vertical-align: middle;
+/* カラム幅の指定 */
+.w-name  { width: 160px; }
+.w-tel   { width: 140px; }
+.w-email { width: auto; }
+.w-bmn   { width: 140px; }
+.w-btn   { width: 80px; }
+
+/* 行のホバーアクション */
+.main-row { background: #fff; }
+.contact-main-table tbody tr:hover { background: #f4faff; }
+
+/* 共通ユーティリティ */
+.mono { font-family: 'Consolas', monospace; color: #444; }
+.btn-cell { text-align: center; }
+
+/* テーブル内の小さいボタン */
+.btn-table-sm {
+  width: 90%; 
+  height: 26px; 
+  background: white; 
+  border: 1px solid #ccc; 
+  border-radius: 3px;
+  cursor: pointer; 
+  font-size: 0.85rem; 
+  color: #333; 
+  transition: all 0.1s;
 }
 
-/* 最後の行のボーダーを消す */
-.contact-info-table__row:last-child .contact-info-table__td {
-  border-bottom: none;
+.btn-table-sm:hover { 
+  background: #f0f0f0; 
+  border-color: #888; 
 }
 
-/* 行にマウスを乗せたときのハイライト */
-.contact-info-table__row:hover .contact-info-table__td {
-  background-color: #fdfdfd;
+/* ローディング・データなし表示 */
+.loading-bar { 
+  background: #e3f2fd; 
+  color: #0078d4; 
+  text-align: center; 
+  padding: 4px; 
+  font-size: 0.8rem; 
 }
+
+.no-data-text {
+  color: #888;
+  font-style: italic;
+  margin: 0;
+}
+
+
+/* =========================================
+   モーダル用スタイル (HardwareInfoSectionに準拠)
+   ========================================= */
+
+.modal-overlay { 
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+  background: rgba(0,0,0,0.4); 
+  display: flex; align-items: center; justify-content: center; z-index: 9999; 
+}
+
+.modal-content { 
+  background: white; border-radius: 8px; width: 480px; 
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2); overflow: hidden; 
+}
+
+.modal-header { 
+  background: #f8f8f8; padding: 12px 20px; border-bottom: 1px solid #ddd; 
+  display: flex; justify-content: space-between; align-items: center; 
+}
+
+.modal-header h3 { margin: 0; font-size: 1.1rem; color: #333; }
+
+.close-btn { 
+  background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; 
+}
+.close-btn:hover { color: #000; }
+
+.modal-body { padding: 25px; }
+
+.modal-footer { 
+  padding: 15px 25px; border-top: 1px solid #ddd; 
+  display: flex; justify-content: flex-end; gap: 10px; background: #fdfdfd; 
+}
+
+.form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+.form-group label { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #444; }
+.form-group input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; }
+
+.btn-primary { 
+  padding: 8px 16px; background: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer; 
+}
+.btn-primary:hover { background: #005a9e; }
+
+.btn-secondary { 
+  padding: 8px 16px; background: #fff; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; 
+}
+.btn-secondary:hover { background: #f0f0f0; }
