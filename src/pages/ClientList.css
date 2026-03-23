@@ -1,18 +1,14 @@
 /* src/pages/ClientList.css */
 
-/* =========================================
-   タブ内のメインレイアウト
-   ========================================= */
 .client-list-tab {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1.5rem 2.5rem; /* MenuやDashboardと余白を統一 */
+  padding: 1.5rem 2.5rem;
   box-sizing: border-box;
   animation: fadeIn 0.4s ease-out;
 }
 
-/* --- ヘッダー部分 --- */
 .list-tab-header {
   margin-bottom: 1.5rem;
   flex-shrink: 0;
@@ -32,9 +28,6 @@
   margin: 0;
 }
 
-/* =========================================
-   リスト表示エリア（カード風のテーブルコンテナ）
-   ========================================= */
 .list-table-container {
   flex: 1;
   background-color: var(--form-bg);
@@ -45,12 +38,10 @@
   overflow-x: auto;
 }
 
-/* スクロールバー装飾 */
 .list-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
 .list-table-container::-webkit-scrollbar-track { background: transparent; }
-.list-table-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 4px; }
+.list-table-container::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
 
-/* --- テーブル本体 --- */
 .modern-list-table {
   width: 100%;
   border-collapse: separate;
@@ -58,11 +49,10 @@
   min-width: 600px;
 }
 
-/* テーブルヘッダー */
 .modern-list-table th {
   position: sticky;
   top: 0;
-  background-color: #F8F8F8;
+  background-color: var(--bg-color); /* 少し色をつけてヘッダーを区別 */
   padding: 1rem 1.2rem;
   font-size: 0.85rem;
   font-weight: 600;
@@ -73,10 +63,9 @@
   white-space: nowrap;
 }
 
-/* テーブルセル */
 .modern-list-table td {
   padding: 0.8rem 1.2rem;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid var(--border-light);
   font-size: 0.95rem;
   color: var(--text-main);
   vertical-align: middle;
@@ -86,65 +75,38 @@
   border-bottom: none;
 }
 
-/* 行のホバー（クリックできる感） */
 .clickable-row {
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .clickable-row:hover td {
-  background-color: #E3F2FD; /* 爽やかな選択カラー */
+  background-color: var(--bg-color); /* ホバー色をテーマの背景色に */
 }
 
-/* --- 各カラムの幅調整 --- */
-/* 💡 担当カラムを追加した分、合計が100%になるように配分し直しました */
-.col-status { width: 8%; text-align: center; } /* アイコンなので中央寄せ */
+.col-status { width: 8%; text-align: center; }
 .col-code { width: 15%; }
 .col-name { width: 37%; }
 .col-system { width: 40%; }
-
-/* ヘッダーの「担当」も中央寄せにする */
-.modern-list-table th.col-status {
-  text-align: center;
-}
+.modern-list-table th.col-status { text-align: center; }
 
 .code-text {
-  font-family: var(--font-family-retro);
   font-weight: 500;
   color: var(--text-sub);
 }
 
-/* --- 担当アイコンの装飾 --- */
-/* 💡 アクセントカラー（テラコッタ）に合わせた温かい背景をつけて丸くします */
 .my-user-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  background-color: #FFF0E6;
+  background-color: #FFF0E6; /* テラコッタに合う淡い色 */
+  color: var(--accent-color);
   border-radius: 50%;
   font-size: 0.85rem;
   box-shadow: 0 2px 4px rgba(226, 125, 96, 0.15);
 }
-
-/* --- システムバッジの装飾 --- */
-.sys-badges {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.sys-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 4px;
-}
-
-.badge-gali { background-color: #E3F2FD; color: #1565C0; }
-.badge-ml { background-color: #E8F5E9; color: #2E7D32; }
-.badge-xro { background-color: #FFF3E0; color: #E65100; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

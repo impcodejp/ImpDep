@@ -80,7 +80,7 @@ export default function ClientList() {
                     </div>
                   </td>
                   {/* 💡 追加：値がない場合は何も表示しない */}
-                  <td className="col-other-system">{c.otherSystem || ""}</td>
+                  <td className="col-other-system">{c.otherSystem ? "有" : ""}</td>
                 </tr>
               ))}
             </tbody>

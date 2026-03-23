@@ -59,12 +59,12 @@ export default function MainPanel({ summary, budget, loadThreshold, viewDate, on
           <div className="card-top"><span className="card-title">当月売上</span></div>
           <div className="val-grid">
             <div>
-              <div className="v-lbl">進捗</div>
-              <div className="v-num">¥{formatYen(summary.monthlySalesActual)}</div>
+              <div className="v-lbl">進捗(千円)</div>
+              <div className="v-num">¥{formatYen(Number(summary.monthlySalesActual) / 1000)}</div>
             </div>
             <div>
-              <div className="v-lbl">予定</div>
-              <div className="v-num">¥{formatYen(summary.monthlySalesPlan)}</div>
+              <div className="v-lbl">予定(千円)</div>
+              <div className="v-num">¥{formatYen(Number(summary.monthlySalesPlan) / 1000)}</div>
             </div>
           </div>
           <div className="progress-wrapper">
@@ -86,12 +86,12 @@ export default function MainPanel({ summary, budget, loadThreshold, viewDate, on
           <div className="card-top"><span className="card-title">当月粗利</span></div>
           <div className="val-grid">
             <div>
-              <div className="v-lbl">進捗</div>
-              <div className="v-num">¥{formatYen(summary.monthlyProfitActual)}</div>
+              <div className="v-lbl">進捗(千円)</div>
+              <div className="v-num">¥{formatYen(Number(summary.monthlyProfitActual) / 1000)}</div>
             </div>
             <div>
-              <div className="v-lbl">予定</div>
-              <div className="v-num">¥{formatYen(summary.monthlyProfitPlan)}</div>
+              <div className="v-lbl">予定(千円)</div>
+              <div className="v-num">¥{formatYen(Number(summary.monthlyProfitPlan) / 1000)}</div>
             </div>
           </div>
           <div className="progress-wrapper">

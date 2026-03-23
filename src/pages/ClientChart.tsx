@@ -56,8 +56,52 @@ export default function ClientChart() {
         .catch(() => []); 
       setHardList(hards);
       
-      const contacts = await invoke<ContactInfo[]>("get_contact_info_by_client_id", { clientId: clientData.id })
-        .catch(() => []);
+      // const contacts = await invoke<ContactInfo[]>("get_contact_info_by_client_id", { clientId: clientData.id })
+      //   .catch(() => []);
+
+      const contacts: ContactInfo[] = [
+        {
+          id: 1,
+          clientId: 101,
+          name: "山田 太郎",
+          telNumber: "03-1234-5678",
+          eMail: "taro.yamada@example.com",
+          bmnName: "営業部"
+        },
+        {
+          id: 2,
+          clientId: 101,
+          name: "佐藤 花子",
+          telNumber: "090-9876-5432",
+          eMail: "hanako.sato@example.com",
+          bmnName: "人事部"
+        },
+        {
+          id: 3,
+          clientId: 102,
+          name: "鈴木 一郎",
+          telNumber: "06-1111-2222",
+          eMail: "ichiro.suzuki@example.jp",
+          bmnName: "システム開発部"
+        },
+        {
+          id: 4,
+          clientId: 103,
+          name: "高橋 美咲",
+          telNumber: "080-3333-4444",
+          eMail: "misaki.takahashi@example.co.jp",
+          bmnName: "マーケティング部"
+        },
+        {
+          id: 5,
+          clientId: 104,
+          name: "伊藤 健",
+          telNumber: "052-555-6666",
+          eMail: "ken.ito@example.com",
+          bmnName: "総務部"
+        }
+      ];
+
       setContactList(contacts);
 
       // 💡 修正：配列ではなく単一のデータとして取得する

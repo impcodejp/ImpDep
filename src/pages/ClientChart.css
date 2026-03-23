@@ -1,15 +1,12 @@
-/* =========================================
-   ClientChart.css
-   全体レイアウト・検索・顧客バナー
-   ========================================= */
+/* src/pages/ClientChart.css */
 
 /* 全体レイアウト */
 .native-window-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--bg-color); /* 変数に変更 */
+  color: var(--text-main);           /* 変数に変更 */
 }
 
 .native-window-header {
@@ -26,7 +23,7 @@
 .search-section {
   max-width: 600px;
   margin-bottom: 20px;
-  background-color: #fff;
+  background-color: var(--form-bg); /* 変数に変更 */
 }
 
 .search-inputs-row {
@@ -43,10 +40,10 @@
 }
 
 .search-panel-inline {
-  background: #f9f9f9;
-  border: 1px dashed #ccc;
+  background: var(--bg-color);
+  border: 1px dashed var(--border-light); /* 変数に変更 */
   padding: 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin-top: 12px;
 }
 
@@ -54,38 +51,45 @@
   list-style: none;
   padding: 0;
   margin: 8px 0 0 0;
-  background: white;
-  border: 1px solid #ccc;
+  background: var(--form-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
   max-height: 150px;
   overflow-y: auto;
+  box-shadow: var(--shadow-soft);
 }
 
 .search-results-list li {
   padding: 8px 12px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
   font-size: 0.9rem;
+  color: var(--text-main);
+  transition: background-color 0.2s;
 }
 
 .search-results-list li:hover {
-  background: #e3f2fd;
+  background: var(--bg-color);
+  color: var(--accent-color);
 }
 
 .search-error-message {
   color: #d32f2f;
   background-color: #fdecea;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin-top: 10px;
 }
 
 /* 顧客情報バナー */
 .client-info-banner {
-  background: white;
-  border-left: 5px solid #0056b3;
+  background: var(--form-bg);
+  /* 強い青からテーマのアクセントカラー（テラコッタ）に変更 */
+  border-left: 5px solid var(--accent-color); 
   padding: 12px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   display: flex;
   flex-direction: column; 
   align-items: flex-start; 
@@ -94,11 +98,12 @@
 .client-info-banner h2 {
   margin: 0;
   font-size: 1.25rem;
+  color: var(--text-main);
 }
 
 .client-info-banner h2 small {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-sub);
   font-weight: normal;
   margin-left: 10px;
 }
@@ -108,18 +113,10 @@
   margin-bottom: 6px;
   font-size: 0.9rem;
   font-weight: bold;
-  color: #444;
+  color: var(--text-main);
 }
 
-/* 💡 追加：利用システムの見出しとバッジのスタイル */
-.client-info-banner h3 {
-  margin-top: 12px;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #444;
-}
-
+/* 利用システムバッジ */
 .sys-badges {
   display: flex;
   gap: 6px;
@@ -128,17 +125,16 @@
 }
 
 .sys-badge {
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.badge-gali { background-color: #4CAF50; }  /* 緑 */
-.badge-ml   { background-color: #2196F3; }  /* 青 */
-.badge-xro  { background-color: #FF9800; }  /* オレンジ */
-.badge-other{ background-color: #9E9E9E; }  /* グレー */
+/* バッジの色味もApp.cssのテイストに合わせて少し柔らかく */
+.badge-gali { background-color: #E3F2FD; color: #1565C0; }
+.badge-ml   { background-color: #E8F5E9; color: #2E7D32; }
+.badge-xro  { background-color: #FFF3E0; color: #E65100; }
+.badge-other{ background-color: #F5F5F5; color: #666666; }
 
-/* ユーティリティ */
 .flex-1 { flex: 1; }

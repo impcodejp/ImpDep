@@ -82,6 +82,11 @@ const Menu: React.FC<MenuProps> = ({
                   💎 請負負荷推移表
                 </button>
               </li>
+              <li>
+                <button className="tree-item-button" onClick={openClientChart}>
+                  📝 顧客カルテ
+                </button>
+              </li>
             </ul>
           )}
         </li>
@@ -104,11 +109,6 @@ const Menu: React.FC<MenuProps> = ({
               <li>
                 <button className="tree-item-button" onClick={openClientEdit}>
                   📝 取引先マスタ更新
-                </button>
-              </li>
-              <li>
-                <button className="tree-item-button" onClick={openClientChart}>
-                  📝 顧客カルテ
                 </button>
               </li>
               <li>
