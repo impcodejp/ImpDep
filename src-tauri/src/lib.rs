@@ -63,6 +63,8 @@ pub fn run() {
                 commands::client_commands::update_hardware_accounts,
                 commands::soft_info_commands::get_software_info_by_client_id,
                 commands::soft_info_commands::upsert_software_info,
+                commands::contacts_commands::get_contact_info_by_client_id,
+                commands::contacts_commands::upsert_contact_info,
                 // 帳票出力関連操作コマンド
                 commands::report_commands::get_monthly_load_transition,
             ])

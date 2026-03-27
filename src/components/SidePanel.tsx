@@ -1,5 +1,3 @@
-// src\components\SidePanel.tsx
-
 import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./SidePanel.css";
@@ -16,7 +14,7 @@ export interface DashboardSummary {
 interface Todo {
   id: number;
   title: string;
-  endDate: string; // 💡 Rust側の #[serde(rename_all = "camelCase")] が必須です
+  endDate: string;
   endFlag: boolean;
   weightLabel: string;
 }
@@ -32,7 +30,6 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loadingTodo, setLoadingTodo] = useState(false);
 
-  // --- 新規タスク入力用のステート ---
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newWeight, setNewWeight] = useState("中");
@@ -50,7 +47,6 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
     setLoadingTodo(true);
     try {
       const data = await invoke<Todo[]>("get_todo");
-      // console.log("Debug Todo Data:", data); // 💡 何かあればここでデータを確認できます
       setTodos(data || []);
     } catch (e) {
       console.error("Failed to load todos:", e);
@@ -83,7 +79,6 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
     const confirmed = window.confirm(`「${todo.title}」を完了にしますか？`);
     if (confirmed) {
       try {
-        // Rust側の payload 定義に合わせて id を送信
         await invoke("update_todo_status", { payload: {id: todo.id }});
         loadTodos();
       } catch (e) {
@@ -128,7 +123,13 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
           <div className="todo-container">
             <form className="todo-input-form" onSubmit={handleAddTodo}>
               <div className="input-row-top">
-                <input type="text" className="todo-quick-input" placeholder="タスク名を入力..." value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                <input 
+                  type="text" 
+                  className="todo-quick-input" 
+                  placeholder="タスク名を入力..." 
+                  value={newTitle} 
+                  onChange={(e) => setNewTitle(e.target.value)} 
+                />
               </div>
               <div className="input-row-bottom">
                 <input type="date" className="todo-date-input" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
@@ -152,7 +153,6 @@ export default function SidePanel({ isVisible, summary, onDoubleClick }: SidePan
                       </div>
                     </div>
                     <div className="todo-date-area">
-                      {/* 💡 ?. を使って undefined エラーを防止 */}
                       <span className="todo-date">{todo.endDate?.slice(5).replace('-', '/') || '--/--'}</span>
                     </div>
                   </li>

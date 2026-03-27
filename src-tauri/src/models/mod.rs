@@ -7,3 +7,4 @@ pub mod budget;
 pub mod todo;
 pub mod hard_info;
 pub mod soft_info;
+pub mod contacts;

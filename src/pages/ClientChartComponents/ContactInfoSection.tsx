@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import "./ContactInfoSection.css"; // CSSをインポート
 
 export interface ContactInfo {
@@ -8,6 +9,7 @@ export interface ContactInfo {
   telNumber: string;
   eMail: string;
   bmnName: string;
+  delKbn:boolean;
 }
 
 interface ContactInfoSectionProps {
@@ -35,7 +37,7 @@ function ContactEditModal({
     name: initialData?.name ?? "",
     bmnName: initialData?.bmnName ?? "",
     telNumber: initialData?.telNumber ?? "",
-    eMail: initialData?.eMail ?? ""
+    eMail: initialData?.eMail ?? "",
   });
 
   return (
@@ -93,8 +95,19 @@ export default function ContactInfoSection({
     // ここで Tauriの invoke などを呼んでバックエンドに保存します
     console.log("保存するデータ:", { ...data, clientId });
     // await invoke("upsert_contact_info", { info: { ...data, clientId } });
+    const payload = {
+      info: {
+        id: data.id ?? null, 
+        clientId: clientId,
+        name: data.name ?? "",
+        telNumber: data.telNumber ?? "",
+        eMail: data.eMail ?? "",
+        bmnName: data.bmnName ?? "",
+      }
+    };
     
-    alert("保存処理を呼び出しました（Consoleを確認してください）");
+    await invoke("upsert_contact_info", payload);
+    alert(`${data.id}, ${clientId}, ${data.name}`);
     
     setIsAddOpen(false);
     setEditData(null);
@@ -106,7 +119,6 @@ export default function ContactInfoSection({
       <legend onClick={onToggle} style={{ cursor: "pointer", userSelect: "none" }}>
         {isOpen ? "▼" : "▶"} 担当者情報
       </legend>
-      
       {isOpen && (
         <div className="section-content">
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>

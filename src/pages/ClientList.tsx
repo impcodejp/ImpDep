@@ -57,7 +57,7 @@ export default function ClientList() {
                 <th className="col-name">取引先名</th>
                 <th className="col-status">担当</th>
                 <th className="col-system">利用システム</th>
-                <th className="col-other-system">その他システム</th> {/* 💡 追加 */}
+                <th className="col-other-system">その他システム</th>
               </tr>
             </thead>
             <tbody>
