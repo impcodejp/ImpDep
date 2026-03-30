@@ -7,6 +7,7 @@ pub mod models;
 pub mod repositories;
 pub mod commands;
 pub mod service;
+pub mod utils;
 
 pub struct AppState {
     db: Pool<Postgres>,

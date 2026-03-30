@@ -2,7 +2,7 @@
 use tauri::State;
 use crate::AppState;
 use crate::repositories::project_repository;
-use crate::models::project::{ ProjectWithClient, ProjectDateHistory, ProjectWithClient2};
+use crate::models::project::{ ProjectWithClient, ProjectDateHistory, ProjectWithClientWithDate};
 use sqlx::types::BigDecimal;
 use std::str::FromStr;
 use chrono::NaiveDate;
@@ -57,7 +57,7 @@ pub async fn get_projects(
 pub async fn get_project_detail(
     state: tauri::State<'_, AppState>,
     id: i32
-) -> Result<ProjectWithClient2, String> {
+) -> Result<ProjectWithClientWithDate, String> {
     crate::repositories::project_repository::get_project_by_id(&state.db, id)
         .await
         .map_err(|e| e.to_string())

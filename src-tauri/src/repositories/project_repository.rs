@@ -1,7 +1,6 @@
 use sqlx::PgPool;
 use sqlx::{Pool, Postgres};
-use crate::models::project::{ ProjectWithClient, ProjectDateHistory, ProjectWithClient2};
-use crate::models::dashboard::DashboardSummary;
+use crate::models::project::{ ProjectWithClient, ProjectDateHistory, ProjectWithClientWithDate, DashboardSummary, ActualProfit };
 use sqlx::types::BigDecimal; 
 use std::str::FromStr;
 use chrono::NaiveDate;
@@ -215,9 +214,9 @@ pub async fn get_project_history(pool: &PgPool, project_id: i32) -> Result<Vec<P
 }
 
 /// ID指定で取得
-pub async fn get_project_by_id(pool: &PgPool, id: i32) -> Result<ProjectWithClient2, sqlx::Error> {
+pub async fn get_project_by_id(pool: &PgPool, id: i32) -> Result<ProjectWithClientWithDate, sqlx::Error> {
     let project = sqlx::query_as!(
-        ProjectWithClient2,
+        ProjectWithClientWithDate,
         r#"
         SELECT 
             p.id, p.project_name, c.client_name, p.sales_amount, 
@@ -247,4 +246,28 @@ pub async fn delete_project(pool: &Pool<Postgres>, id: i32) -> sqlx::Result<()> 
     .await?;
 
     Ok(())
+}
+
+pub async fn get_profit_sum_by_period(
+    pool: &PgPool,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+) -> Result<ActualProfit, sqlx::Error> {
+    let stats = sqlx::query_as!(
+        ActualProfit,
+        r#"
+        SELECT 
+            COALESCE(SUM(CASE WHEN root_type = 'N' THEN gross_profit_amount * burden_ratio ELSE 0 END), 0) as "new_actual_profit_sum!",
+            COALESCE(SUM(gross_profit_amount * burden_ratio), 0) as "actual_profit_sum!"
+        FROM projects
+        WHERE completed_date >= $1
+          AND completed_date <= $2
+        "#,
+        start_date,
+        end_date
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(stats)
 }

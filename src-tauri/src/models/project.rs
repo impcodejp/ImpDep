@@ -44,7 +44,7 @@ pub struct ProjectWithClient {
 // Client名を結合したプロジェクト構造体（計上予定日も）
 #[derive(Debug, Serialize, Deserialize, FromRow)] // 💡 ここに FromRow があれば query_as! で使えます
 #[serde(rename_all = "camelCase")]
-pub struct ProjectWithClient2 {
+pub struct ProjectWithClientWithDate {
     pub id: i32,
     pub project_name: String,
     pub client_name: String, 
@@ -71,4 +71,22 @@ pub struct ProjectDateHistory {
     pub new_date: Option<NaiveDate>, // 変更なしでテキストだけ変更するケースもあるのでOption
     pub change_reason: Option<String>, // 理由も空かもしれないのでOption
     pub changed_at: DateTime<Utc>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardSummary {
+    pub monthly_sales_plan: BigDecimal,
+    pub monthly_sales_actual: BigDecimal,
+    pub monthly_profit_plan: BigDecimal,
+    pub monthly_profit_actual: BigDecimal,
+    pub upcoming_projects: Vec<ProjectWithClient>,
+    pub load_value_sum: BigDecimal,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActualProfit {
+    pub actual_profit_sum: BigDecimal,
+    pub new_actual_profit_sum: BigDecimal,
 }

@@ -2,10 +2,10 @@
 
 use tauri::State;
 use crate::AppState;
-use crate::models::dashboard::{ DashboardSummary, DashboardBudget };
+use crate::models::dashboard::{ DashboardBudget };
+use crate::models::project::{ DashboardSummary };
 use crate::repositories::project_repository;
-use crate::service::dashboard_service::calculate_summary_period;
-use crate::repositories::dashboard_repository;
+use crate::service::dashboard_service;
 
 #[tauri::command]
 pub async fn get_dashboard_summary(
@@ -20,14 +20,10 @@ pub async fn get_dashboard_summary(
 
 #[tauri::command]
 pub async fn get_fiscal_summary(
-    state: State<'_, AppState>, // PgPool単体ではなくAppStateに合わせる
+    state: State<'_, AppState>,
     input_date: String
 ) -> Result<DashboardBudget, String> {
-    // 1. 期間算出
-    let (start, end) = calculate_summary_period(&input_date)?;
-
-    // 2. リポジトリ呼び出し（既存のスタイルに合わせて実装）
-    dashboard_repository::get_summary_by_period(&state.db, start, end, input_date)
+    dashboard_service::get_dashboard_data_service(&state.db, &input_date)
         .await
-        .map_err(|e| format!("期間集計に失敗しました: {}", e))
+        .map_err(|e| format!("新版の集計に失敗: {}", e))
 }
