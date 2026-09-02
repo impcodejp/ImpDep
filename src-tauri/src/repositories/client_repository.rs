@@ -3,7 +3,6 @@ use sqlx::PgPool;
 use crate::models::client::{CreateClientInput, ClientResponse, UpdateClientInput};
 
 pub async fn create_client(pool: &Pool<Postgres>, input: CreateClientInput) -> Result<()> {
-    // 💡 INSERT文に other_system と $7 を追加
     sqlx::query!(
         r#"
         INSERT INTO clients (client_code, client_name, usegali, useml, usexro, my_user, other_system)
@@ -25,7 +24,6 @@ pub async fn create_client(pool: &Pool<Postgres>, input: CreateClientInput) -> R
 
 // 取引先コードで完全に一致するものを1件取得する関数
 pub async fn get_client_by_code(pool: &PgPool, code: i32) -> Result<ClientResponse, sqlx::Error> {
-    // 💡 SELECT句に other_system を追加
     let client = sqlx::query_as!(
         ClientResponse,
         r#"
@@ -43,7 +41,6 @@ pub async fn get_client_by_code(pool: &PgPool, code: i32) -> Result<ClientRespon
 
 // 取引先を更新する関数
 pub async fn update_client(pool: &PgPool, input: UpdateClientInput) -> Result<(), sqlx::Error> {
-    // 💡 SET句に other_system = $7 を追加し、WHERE条件を $8 に変更
     sqlx::query!(
         r#"
         UPDATE clients
@@ -67,8 +64,6 @@ pub async fn update_client(pool: &PgPool, input: UpdateClientInput) -> Result<()
 
 pub async fn search_clients_by_name(pool: &PgPool, name: String) -> Result<Vec<ClientResponse>, sqlx::Error> {
     let search_term = format!("%{}%", name);
-    
-    // 💡 SELECT句に other_system を追加
     let clients = sqlx::query_as!(
         ClientResponse,
         r#"
@@ -87,7 +82,6 @@ pub async fn search_clients_by_name(pool: &PgPool, name: String) -> Result<Vec<C
 
 // 取引先を全件取得する関数
 pub async fn get_all_clients(pool: &PgPool) -> Result<Vec<ClientResponse>, sqlx::Error> {
-    // 💡 SELECT句に other_system を追加
     let clients = sqlx::query_as!(
         ClientResponse,
         r#"

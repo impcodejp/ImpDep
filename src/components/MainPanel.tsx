@@ -122,18 +122,18 @@ export default function MainPanel({ summary, budget, loadThreshold, viewDate, on
               {/* 右側上段：実績 */}
               <div className="actual-box">
                 <div className="v-lbl">実績(千円)</div>
-                <div className="fraction-num">¥{Math.floor(Number(budget.newProfitSum) / 1000).toFixed(0)}</div>
+                <div className="fraction-num">¥{formatYen(Math.floor(Number(budget.newProfitSum) / 1000))}</div>
               </div>
               {/* 右側下段：予算 */}
               <div className="budget-box">
                 <div className="v-lbl">予算(千円)</div>
-                <div className="fraction-num">¥{Math.floor(Number(budget.newProfitBudget) /1000).toFixed(0)}</div>
+                <div className="fraction-num">¥{formatYen(Math.floor(Number(budget.newProfitBudget) / 1000))}</div>
               </div>
             </div>
 
             <div className="progress-wrapper">
               <div className="prog-info">
-                <span className="v-lbl" style={{ marginBottom: 0 }}>当月実績(千円): ¥{Math.floor(Number(budget.newProfitSumThismonth) /1000).toFixed(0)}</span>
+                <span className="v-lbl" style={{ marginBottom: 0 }}>当月実績(千円): ¥{formatYen(Math.floor(Number(budget.newProfitSumThismonth) / 1000))}</span>
                 <span className="this-month-percent">うち当月 {Number(budget.newProfitPointThismonth).toFixed(1)}%</span>
               </div>
               <div className="prog-bg">
@@ -153,23 +153,23 @@ export default function MainPanel({ summary, budget, loadThreshold, viewDate, on
               {/* 左側：達成率 */}
               <div className="achievement-rate">
                 <div className="v-lbl">達成率</div>
-                <div className="rate-num">{Number(budget.profitPoint).toFixed(0)}<span className="percent-mark">%</span></div>
+                <div className="rate-num">{Number(budget.profitPoint).toFixed(1)}<span className="percent-mark">%</span></div>
               </div>
               {/* 右側上段：実績 */}
               <div className="actual-box">
                 <div className="v-lbl">実績(千円)</div>
-                <div className="fraction-num">¥{Math.floor(Number(budget.profitSum) / 1000).toFixed(0)}</div>
+                <div className="fraction-num">¥{formatYen(Math.floor(Number(budget.profitSum) / 1000))}</div>
               </div>
               {/* 右側下段：予算 */}
               <div className="budget-box">
                 <div className="v-lbl">予算(千円)</div>
-                <div className="fraction-num">¥{Math.floor(Number(budget.profitBudget) / 1000).toFixed(0)}</div>
+                <div className="fraction-num">¥{formatYen(Math.floor(Number(budget.profitBudget) / 1000))}</div>
               </div>
             </div>
 
             <div className="progress-wrapper">
               <div className="prog-info">
-                <span className="v-lbl" style={{ marginBottom: 0 }}>当月実績(千円): ¥{Math.floor(Number(budget.profitSumThismonth) /1000).toFixed(0)}</span>
+                <span className="v-lbl" style={{ marginBottom: 0 }}>当月実績(千円): ¥{formatYen(Math.floor(Number(budget.profitSumThismonth) /1000))}</span>
                 <span className="this-month-percent">うち当月 {Number(budget.profitPointThismonth).toFixed(1)}%</span>
               </div>
               <div className="prog-bg">

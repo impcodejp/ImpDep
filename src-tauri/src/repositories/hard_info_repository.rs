@@ -48,11 +48,8 @@ pub async fn insert_hardware_with_users(
     hard: InsertHardInfo,
     users: Vec<InsertHardUserInfo>,
 ) -> Result<(), sqlx::Error> {
-    // トランザクションを開始
     let mut tx = pool.begin().await?;
 
-    // 1. hard_info へのインサート (RETURNING id で採番されたIDを取得)
-    // 💡 NULLIF を使って、フロントからの空文字("")をDBのNULLとして処理させます
     let inserted_hard = sqlx::query!(
         r#"
         INSERT INTO hard_info (client_id, hard_kbn, host_name, ip, introduction_date, other_text, status)
@@ -70,7 +67,6 @@ pub async fn insert_hardware_with_users(
     .fetch_one(&mut *tx)
     .await?;
 
-    // 2. ユーザー情報があれば、取得した hard_id を紐づけてインサート
     for user in users {
         sqlx::query!(
             r#"
@@ -85,28 +81,22 @@ pub async fn insert_hardware_with_users(
         .await?;
     }
 
-    // すべて成功したらコミット
     tx.commit().await?;
     Ok(())
 }
 
-// 💡 追加：特定機器のアカウント情報のみを「洗い替え」で更新する
 pub async fn update_hard_user_info(
     pool: &PgPool,
     hard_id: i32,
     users: Vec<InsertHardUserInfo>,
 ) -> Result<(), sqlx::Error> {
     let mut tx = pool.begin().await?;
-
-    // 1. 現在のユーザー情報を一度すべて削除
     sqlx::query!(
         "DELETE FROM hard_user_info WHERE hard_id = $1",
         hard_id
     )
     .execute(&mut *tx)
     .await?;
-
-    // 2. 新しいユーザー情報をインサート
     for user in users {
         sqlx::query!(
             r#"
@@ -127,7 +117,7 @@ pub async fn update_hard_user_info(
 
 pub async fn update_hardware_basic(
     pool: &PgPool,
-    hard: InsertHardInfo, // 💡 ID入り構造体を受け取る
+    hard: InsertHardInfo,
 ) -> Result<(), sqlx::Error> {
     let hard_id = hard.id.expect("ID must be present for update");
 

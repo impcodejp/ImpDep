@@ -5,7 +5,6 @@ pub async fn get_contacts_info_by_client_id(
     pool: &PgPool,
     client_id: i32
 ) -> Result<Vec<ContactInfo>, sqlx::Error> {
-    // 💡 修正点: query_as! の第1引数を戻り値と同じ型に変更
     let records = sqlx::query_as!(
         ContactInfo, 
         r#"
@@ -25,7 +24,7 @@ pub async fn get_contacts_info_by_client_id(
     .fetch_all(pool)
     .await?;
 
-    Ok(records) // 💡 修正点: records をそのまま返す
+    Ok(records)
 }
 
 pub async fn upsert(pool: &PgPool, info: AddAndUpdateContactInfo) -> Result<String, sqlx::Error> {
@@ -50,12 +49,12 @@ pub async fn upsert(pool: &PgPool, info: AddAndUpdateContactInfo) -> Result<Stri
             e_mail = EXCLUDED.e_mail,
             bmn_name = EXCLUDED.bmn_name
         "#,
-        info.id,          // $1
-        info.client_id,   // $2
-        info.name,        // $3 (構造体のフィールド名は name でOK)
-        info.tel_number,  // $4 (構造体のフィールド名は tel_number でOK)
-        info.e_mail,      // $5
-        info.bmn_name     // $6
+        info.id,
+        info.client_id,
+        info.name,
+        info.tel_number,
+        info.e_mail,
+        info.bmn_name
     )
     .execute(pool)
     .await?;
